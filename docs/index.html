@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
 <style>html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}</style>
-<script>window.TANGENTA_VERSION = {"id": "7aee707", "label": "08.11.2026 12:20"};</script>
+<script>window.TANGENTA_VERSION = {"id": "1a326df", "label": "08.11.2026 12:27"};</script>
 <meta charset="utf-8">
 <title>Tangenta</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -416,7 +416,33 @@ const SONGS = [
   { id:'elise', title:'Für Elise', info:'Ludwig van Beethoven, 1810', cat:'klassisk', level:3, bpm:72, time:'3/4',
     notes:'E5:8 D#5:8 | E5:8 D#5:8 E5:8 B4:8 D5:8 C5:8 | A4 r:8 C4:8 E4:8 A4:8 | B4 r:8 E4:8 G#4:8 B4:8 | C5 r:8 E4:8 E5:8 D#5:8 | E5:8 D#5:8 E5:8 B4:8 D5:8 C5:8 | A4 r:8 C4:8 E4:8 A4:8 | B4 r:8 E4:8 C5:8 B4:8 | A4:2.' },
   { id:'koro', title:'Korobeiniki', info:'Russisk folkesang (kjent fra dataspill)', cat:'folk', level:3, bpm:100, time:'4/4',
-    notes:'E5 B4:8 C5:8 D5 C5:8 B4:8 | A4 A4:8 C5:8 E5 D5:8 C5:8 | B4:4. C5:8 D5 E5 | C5 A4 A4:2 | r:8 D5 F5:8 A5 G5:8 F5:8 | E5:4. C5:8 E5 D5:8 C5:8 | B4 B4:8 C5:8 D5 E5 | C5 A4 A4:2' }
+    notes:'E5 B4:8 C5:8 D5 C5:8 B4:8 | A4 A4:8 C5:8 E5 D5:8 C5:8 | B4:4. C5:8 D5 E5 | C5 A4 A4:2 | r:8 D5 F5:8 A5 G5:8 F5:8 | E5:4. C5:8 E5 D5:8 C5:8 | B4 B4:8 C5:8 D5 E5 | C5 A4 A4:2' },
+  { id:'buns', title:'Hot Cross Buns', info:'Engelsk barnesang. God øving på like toner', cat:'barn', level:1, bpm:90, time:'4/4',
+    notes:'E4 D4 C4:2 | E4 D4 C4:2 | C4:8 C4:8 C4:8 C4:8 D4:8 D4:8 D4:8 D4:8 | E4 D4 C4:2' },
+  { id:'clair', title:'Au clair de la lune', info:'Fransk folketone', cat:'barn', level:1, bpm:92, time:'4/4',
+    notes:'C4 C4 C4 D4 | E4:2 D4:2 | C4 E4 D4 D4 | C4:1 | C4 C4 C4 D4 | E4:2 D4:2 | C4 E4 D4 D4 | C4:1' },
+  { id:'macdonald', title:'Old MacDonald Had a Farm', info:'Amerikansk barnesang', cat:'barn', level:1, bpm:104, time:'4/4',
+    notes:'G4 G4 G4 D4 | E4 E4 D4:2 | B4 B4 A4 A4 | G4:2. D4 | G4 G4 G4 D4 | E4 E4 D4:2 | B4 B4 A4 A4 | G4:1' },
+  { id:'london', title:'London Bridge Is Falling Down', info:'Engelsk barnesang', cat:'barn', level:2, bpm:100, time:'4/4',
+    notes:'G4:4. A4:8 G4 F4 | E4 F4 G4:2 | D4 E4 F4:2 | E4 F4 G4:2 | G4:4. A4:8 G4 F4 | E4 F4 G4:2 | D4:2 G4:2 | E4 C4:2.' },
+  { id:'row', title:'Row, Row, Row Your Boat', info:'Engelsk barnesang', cat:'barn', level:2, bpm:66, time:'6/8',
+    notes:'C4:4. C4:4. | C4 D4:8 E4:4. | E4 D4:8 E4 F4:8 | G4:2. | C5:8 C5:8 C5:8 G4:8 G4:8 G4:8 | E4:8 E4:8 E4:8 C4:8 C4:8 C4:8 | G4 F4:8 E4 D4:8 | C4:2.' },
+  { id:'brahms', title:'Brahms’ vuggevise', info:'Johannes Brahms, 1868', cat:'klassisk', level:2, bpm:84, time:'3/4',
+    notes:'E4:8 E4:8 | G4:2 E4:8 E4:8 | G4:2 E4:8 G4:8 | C5 B4:4. A4:8 | A4 G4 D4:8 E4:8 | F4 D4 D4:8 E4:8 | F4:2 D4:8 F4:8 | B4:8 A4:8 G4 B4 | C5:2.' },
+  { id:'pachelbel', title:'Pachelbels kanon', info:'Johann Pachelbel, ca. 1690', cat:'klassisk', level:1, bpm:80, time:'4/4',
+    notes:'E5:2 D5:2 | C5:2 B4:2 | A4:2 G4:2 | A4:2 B4:2 | C5:2 B4:2 | A4:2 G4:2 | F4:2 E4:2 | F4:2 D4:2 | E4:1' },
+  { id:'nachtmusik', title:'Eine kleine Nachtmusik', info:'Wolfgang Amadeus Mozart, 1787', cat:'klassisk', level:2, bpm:100, time:'4/4',
+    notes:'G4 r:8 D4:8 G4 r:8 D4:8 | G4:8 D4:8 G4:8 B4:8 D5:2 | C5 r:8 A4:8 C5 r:8 A4:8 | C5:8 A4:8 F#4:8 A4:8 D4:2' },
+  { id:'greensleeves', title:'Greensleeves', info:'Engelsk folketone, 1500-tallet', cat:'folk', level:3, bpm:100, time:'3/4',
+    notes:'A4 | C5:2 D5 | E5:4. F5:8 E5 | D5:2 B4 | G4:4. A4:8 B4 | C5:2 A4 | A4:4. G#4:8 A4 | B4:2 G#4 | E4:2 A4 | C5:2 D5 | E5:4. F5:8 E5 | D5:2 B4 | G4:4. A4:8 B4 | C5:4. B4:8 A4 | G#4:4. F#4:8 G#4 | A4:2.' },
+  { id:'grace', title:'Amazing Grace', info:'Amerikansk salmetone, 1835', cat:'folk', level:2, bpm:84, time:'3/4',
+    notes:'D4 | G4:2 B4:8 G4:8 | B4:2 A4 | G4:2 E4 | D4:2 D4 | G4:2 B4:8 G4:8 | B4:2 A4 | D5:2.' },
+  { id:'gladejul', title:'Glade jul', info:'Franz Xaver Gruber, 1818', cat:'jul', level:2, bpm:76, time:'6/8',
+    notes:'G4:4. A4:8 G4 | E4:2. | G4:4. A4:8 G4 | E4:2. | D5:2 D5 | B4:2. | C5:2 C5 | G4:2. | A4:2 A4 | C5:4. B4:8 A4 | G4:4. A4:8 G4 | E4:2. | A4:2 A4 | C5:4. B4:8 A4 | G4:4. A4:8 G4 | E4:2. | D5:2 D5 | F5:4. D5:8 B4 | C5:2. | E5:2. | C5 G4 E4 | G4:4. F4:8 D4 | C4:2.' },
+  { id:'deck', title:'Deck the Halls', info:'Walisisk folketone', cat:'jul', level:2, bpm:100, time:'4/4',
+    notes:'G4:4. F4:8 E4 D4 | C4 D4 E4 C4 | D4:8 E4:8 F4:8 D4:8 E4:4. D4:8 | C4 B3 C4:2 | G4:4. F4:8 E4 D4 | C4 D4 E4 C4 | D4:8 E4:8 F4:8 D4:8 E4:4. D4:8 | C4 B3 C4:2' },
+  { id:'wewish', title:'We Wish You a Merry Christmas', info:'Engelsk julesang', cat:'jul', level:2, bpm:110, time:'3/4',
+    notes:'G4 | C5 C5:8 D5:8 C5:8 B4:8 | A4 A4 A4 | D5 D5:8 E5:8 D5:8 C5:8 | B4 G4 G4 | E5 E5:8 F5:8 E5:8 D5:8 | C5 A4 G4:8 G4:8 | A4 D5 B4 | C5:2.' }
 ];
 const CATS = [
   { id:'alle', label:'Alle' }, { id:'barn', label:'Barnesanger' }, { id:'klassisk', label:'Klassisk' },
@@ -608,10 +634,14 @@ function playTone(midi, when, dur = 0.7, vel = 0.5) {
 }
 function click(when, accent) {
   const a = audio(), t = Math.max(when, a.currentTime);
-  const o = a.createOscillator(), g = a.createGain();
-  o.type = 'sine'; o.frequency.value = accent ? 2600 : 2100;
-  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(accent ? 0.5 : 0.3, t + 0.002); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
-  o.connect(g); g.connect(master); o.start(t); o.stop(t + 0.06);
+  if (!click.noise || click.noise.sampleRate !== a.sampleRate) {
+    const n = Math.floor(a.sampleRate * 0.04); click.noise = a.createBuffer(1, n, a.sampleRate);
+    const d = click.noise.getChannelData(0); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 3);
+  }
+  const src = a.createBufferSource(), bp = a.createBiquadFilter(), g = a.createGain();
+  src.buffer = click.noise; bp.type = 'bandpass'; bp.frequency.value = accent ? 3200 : 2400; bp.Q.value = 0.8;
+  g.gain.value = accent ? 1.6 : 1.0;
+  src.connect(bp); bp.connect(g); g.connect(master); src.start(t);
 }
 
 /* ================= MIKROFON ================= */
@@ -680,7 +710,7 @@ function detectPitch(raw, sr) {
   let mean = 0; for (let i = 0; i < raw.length; i++) mean += raw[i]; mean /= raw.length;
   const hp = Math.exp(-2 * Math.PI * 60 / sr); let py = 0, px = raw[0] - mean;
   for (let i = 0; i < raw.length; i++) { const x = raw[i] - mean; py = hp * (py + x - px); px = x; buf[i] = py; }
-  const minLag = Math.floor(sr / 1400), maxLag = Math.min(Math.ceil(sr / 90), buf.length >> 1);
+  const minLag = Math.floor(sr / 2600), maxLag = Math.min(Math.ceil(sr / 90), buf.length >> 1);
   const W = buf.length - maxLag, nsdf = new Float32Array(maxLag + 2);
   for (let tau = minLag; tau <= maxLag; tau++) {
     let acf = 0, m = 0;
@@ -746,12 +776,17 @@ function micTick() {
   mic.level = Math.max(lvl, (mic.level || 0) * 0.9);
   const lb = $('#lvlBar'); if (lb) lb.style.width = (mic.level * 100).toFixed(0) + '%';
   if (!$('#settings').hidden) { const tb = $('#testLvl'); if (tb) tb.style.width = (mic.level * 100).toFixed(0) + '%'; }
-  if (rms > 0.004 && rms > recentMin * 1.4 + 0.001) mic.onset = true;
-  mic.rms.push(rms); if (mic.rms.length > 4) mic.rms.shift();
-  if (rms < 0.0025) { mic.stable = 0; mic.lastMidi = -1; mic.diag = 'for svak lyd'; mic.live = null; return; }
+  // anslag måles på de siste ~11 ms, så et nytt trykk på samme tangent synes selv om forrige tone klinger
+  const B = mic.buf, N = B.length; let f2 = 0; for (let i = N - 512; i < N; i++) f2 += B[i] * B[i];
+  const fast = Math.sqrt(f2 / 512), tms = performance.now();
+  const fastMin = mic.rms.length ? Math.min(...mic.rms) : 0;
+  mic.minSince = mic.minSince == null ? fast : Math.min(mic.minSince, fast);
+  if (tms > (mic.refract || 0) && fast > 0.003 && (fast > fastMin * 1.3 + 0.0008 || fast > mic.minSince * 1.7 + 0.0008)) mic.onset = true;
+  mic.rms.push(fast); if (mic.rms.length > 6) mic.rms.shift();
+  if (rms < 0.0018) { mic.stable = 0; mic.lastMidi = -1; mic.accepted = -1; mic.diag = 'for svak lyd'; mic.live = null; return; }
   const p = detectPitch(mic.buf, ac.sampleRate);
   mic.diag = p ? `${p.freq.toFixed(0)} Hz, klarhet ${p.clarity.toFixed(2)}` : 'ingen tone funnet';
-  if (!p || p.clarity < 0.6 || p.freq < 60 || p.freq > 1500) { mic.stable = 0; mic.live = null; return; }
+  if (!p || p.clarity < (p.freq > 600 ? 0.5 : 0.6) || p.freq < 60 || p.freq > 2400) { mic.stable = 0; mic.live = null; return; }
   const midi = Math.round(69 + 12 * Math.log2(p.freq / 440));
   mic.live = midi;
   if (!$('#settings').hidden) { $('#testNote').textContent = midiName(midi); }
@@ -759,7 +794,7 @@ function micTick() {
   mic.lastMidi = midi;
   if (mic.stable === 2 || (mic.stable > 2 && mic.onset)) {
     if (midi % 12 !== mic.accepted % 12 || mic.onset) {
-      mic.accepted = midi; mic.onset = false;
+      mic.accepted = midi; mic.onset = false; mic.refract = tms + 110; mic.minSince = fast;
       const li = midiLi(midi);
       mic.liveShown = -2;
       showHeard(midi);
