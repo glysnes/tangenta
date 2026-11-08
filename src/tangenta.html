@@ -131,9 +131,18 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,textarea:
 .staff-svg .fx.perfect{fill:var(--ok)}
 .staff-svg .fx.good{fill:var(--n-a)}
 .staff-svg .fx.miss{fill:var(--bad);font-size:20px}
+.staff-svg .ghost{animation:ghost 1.6s ease-out forwards}
+.staff-svg .ghost ellipse{fill:var(--bad);stroke:var(--bad)}
+.staff-svg .ghost .ledger{stroke:var(--bad)}
+.staff-svg .ghost .acc{stroke:var(--bad)}
+.staff-svg .ghost text{font-family:var(--font-display);font-weight:800;font-size:22px;fill:var(--bad);text-anchor:middle;paint-order:stroke;stroke:var(--surface);stroke-width:5px}
+@keyframes ghost{0%{opacity:0}10%{opacity:1}70%{opacity:1}100%{opacity:0}}
 @keyframes fxup{0%{opacity:0;transform:translateY(12px) scale(.7)}20%{opacity:1;transform:translateY(0) scale(1.1)}100%{opacity:0;transform:translateY(-22px) scale(1)}}
 .hud{position:absolute;top:10px;right:14px;display:flex;gap:8px;align-items:center;pointer-events:none}
 .hud span{background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-weight:800;font-size:16px;font-variant-numeric:tabular-nums}
+.hud .micpill{display:inline-flex;align-items:center;gap:8px}
+.lvl-bar{display:inline-block;width:46px;height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.lvl-bar b{display:block;height:100%;width:0;background:var(--ok);border-radius:4px}
 .hud .combo{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
 .hud .combo.bump{animation:pop .3s cubic-bezier(.3,1.6,.5,1)}
 .staff-svg .cursor{fill:var(--cursor);opacity:.9}
@@ -260,7 +269,7 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,textarea:
       <g id="scrollG"><g id="cursorG"></g><g id="notesG"></g><g id="fxG"></g></g>
       <g id="panelG"></g>
     </svg>
-    <div class="hud" id="hud" hidden><span id="hudHits">0 / 0</span><span class="combo" id="hudCombo" hidden></span></div>
+    <div class="hud" id="hud" hidden><span class="micpill" id="micPill" hidden><i class="lvl-bar"><b id="lvlBar"></b></i><span id="hudHeard">–</span></span><span id="hudHits">0 / 0</span><span class="combo" id="hudCombo" hidden></span></div>
     <div class="count" id="countIn" hidden></div>
     <div class="finish" id="finish" hidden><div class="finish-card" id="finishCard"></div></div>
   </div>
@@ -565,9 +574,13 @@ async function micStart() {
     const src = a.createMediaStreamSource(mic.stream);
     mic.an = a.createAnalyser(); mic.an.fftSize = 2048;
     src.connect(mic.an);
+    // Safari behandler bare noder som ender i høyttaleren: koble analysen dit via null-volum.
+    const sink = a.createGain(); sink.gain.value = 0;
+    mic.an.connect(sink); sink.connect(a.destination);
+    mic.src = src; mic.sink = sink;
     mic.buf = new Float32Array(mic.an.fftSize);
     mic.on = true; mic.accepted = -1; mic.onset = false; mic.stable = 0;
-    updateMicUi();
+    updateMicUi(); updateHud();
     return true;
   } catch (e) {
     setAudioSession('playback');
@@ -578,9 +591,10 @@ async function micStart() {
 }
 function micStop() {
   if (mic.stream) mic.stream.getTracks().forEach(t => t.stop());
-  mic.on = false; mic.stream = null; mic.an = null;
+  try { if (mic.src) mic.src.disconnect(); if (mic.sink) mic.sink.disconnect(); } catch (e) {}
+  mic.on = false; mic.stream = null; mic.an = null; mic.src = null; mic.sink = null;
   setAudioSession('playback');
-  updateMicUi();
+  updateMicUi(); updateHud();
 }
 function updateMicUi() {
   $('#micBtn').classList.toggle('on', mic.on);
@@ -616,9 +630,12 @@ function micTick() {
   let sum = 0; for (let i = 0; i < mic.buf.length; i++) sum += mic.buf[i] * mic.buf[i];
   const rms = Math.sqrt(sum / mic.buf.length);
   const recentMin = mic.rms.length ? Math.min(...mic.rms) : 0;
-  if (rms > 0.012 && rms > recentMin * 1.4 + 0.002) mic.onset = true;
+  const lvl = Math.max(0, Math.min(1, (20 * Math.log10(rms + 1e-9) + 62) / 50));
+  mic.level = Math.max(lvl, (mic.level || 0) * 0.9);
+  const lb = $('#lvlBar'); if (lb) lb.style.width = (mic.level * 100).toFixed(0) + '%';
+  if (rms > 0.004 && rms > recentMin * 1.4 + 0.001) mic.onset = true;
   mic.rms.push(rms); if (mic.rms.length > 4) mic.rms.shift();
-  if (rms < 0.006) { mic.stable = 0; mic.lastMidi = -1; return; }
+  if (rms < 0.0025) { mic.stable = 0; mic.lastMidi = -1; return; }
   const p = detectPitch(mic.buf, ac.sampleRate);
   if (!p || p.clarity < 0.82 || p.freq < 80 || p.freq > 1500) { mic.stable = 0; return; }
   const midi = Math.round(69 + 12 * Math.log2(p.freq / 440));
@@ -628,9 +645,8 @@ function micTick() {
   if (mic.stable === 2 || (mic.stable > 2 && mic.onset)) {
     if (midi % 12 !== mic.accepted % 12 || mic.onset) {
       mic.accepted = midi; mic.onset = false;
-      const h = $('#heard'); h.textContent = midiName(midi);
       const li = midiLi(midi);
-      h.style.background = prefs.colors ? NC[li] : ''; h.style.color = prefs.colors ? noteFg(li) : '';
+      for (const h of [$('#heard'), $('#hudHeard')]) { h.textContent = midiName(midi); h.style.color = prefs.colors ? NC[li] : ''; }
       showHeard(midi);
       onPlayed(midi, 'mic');
     }
@@ -803,8 +819,9 @@ function onPlayed(midi, source) {
     const n = P.notes[P.idx];
     if (!n || n.type !== 'note' || !$('#finish').hidden) return;
     if (midi === n.midi || (source === 'mic' && midi % 12 === n.midi % 12)) { P.hits[P.idx] = true; advanceWait(); }
-    else if (source === 'key') {
-      flashWrong(midi);
+    else {
+      flashWrong(midi); ghost(midi);
+      if (source === 'key')
       if (midi % 12 === n.midi % 12) toast('Riktig tone, men en annen oktav. Prøv tangenten som lyser.');
     }
     return;
@@ -830,11 +847,11 @@ function onPlayed(midi, source) {
       fx(P.notes[best].x, perfect ? 'Perfekt!' : 'Bra!', perfect ? 'perfect' : 'good');
       renderNotes(); updateHud(true);
     } else if (active) {
-      P.combo = 0; updateHud(); flashWrong(midi);
+      P.combo = 0; updateHud(); flashWrong(midi); ghost(midi);
     }
   }
 }
-const MIC_LAT = 0.07;
+const MIC_LAT = 0.12;
 function noteWindow(n) {
   const r = P.run, at = r.t0 + n.start * r.spb, len = n.beats * r.spb;
   return { at, from: at - Math.min(0.25, Math.max(0.12, len * 0.5)), to: at + Math.max(0.25, Math.min(len * 0.7, 0.6)) };
@@ -845,10 +862,29 @@ function fx(x, text, cls) {
   t.textContent = text; fxG.appendChild(t);
   setTimeout(() => t.remove(), 950);
 }
+function ghost(midi) {
+  const li = midiLi(midi), acc = isWhite(midi) ? 0 : 1, step = li + 7 * (Math.floor(midi / 12) - 1);
+  const x = P.curX + 30, y = stepY(step);
+  let g = '';
+  for (let k = 28; k >= step; k -= 2) g += `<line x1="${x - 17}" x2="${x + 17}" y1="${stepY(k)}" y2="${stepY(k)}" class="ledger"/>`;
+  for (let k = 40; k <= step; k += 2) g += `<line x1="${x - 17}" x2="${x + 17}" y1="${stepY(k)}" y2="${stepY(k)}" class="ledger"/>`;
+  if (acc) g += accSvg(1, x - 25, y);
+  g += `<ellipse cx="${x}" cy="${y}" rx="10.6" ry="7.6" transform="rotate(-22 ${x} ${y})"/>`;
+  g += `<text x="${x}" y="${TOP - 24}">Du spilte ${midiName(midi)}</text>`;
+  const el = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  el.setAttribute('class', 'ghost'); el.innerHTML = g;
+  [...fxG.querySelectorAll('.ghost')].forEach(o => o.remove());
+  fxG.appendChild(el);
+  setTimeout(() => el.remove(), 1650);
+}
 function updateHud(bump) {
-  const show = P.mode === 'tempo' && (mic.on || Object.keys(P.hits).length > 0 || (P.run && P.run.scored));
-  $('#hud').hidden = !show;
-  if (!show) return;
+  const scoring = P.mode === 'tempo' && (mic.on || Object.keys(P.hits).length > 0 || (P.run && P.run.scored));
+  const micShown = mic.on && P.mode !== 'listen';
+  $('#hud').hidden = !scoring && !micShown;
+  $('#micPill').hidden = !micShown;
+  $('#hudHits').hidden = !scoring;
+  $('#hudCombo').hidden = true;
+  if (!scoring) return;
   const total = P.notes.filter(n => n.type === 'note').length;
   $('#hudHits').textContent = `${Object.keys(P.hits).length} / ${total}`;
   const c = $('#hudCombo');
