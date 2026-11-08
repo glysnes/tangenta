@@ -219,6 +219,9 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,textarea:
 .modal-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 .btn.danger{color:var(--bad)}
 .btn.danger.armed{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+.version-tag{position:fixed;z-index:5;left:max(10px,env(safe-area-inset-left,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));font-size:12px;font-weight:700;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px 10px;pointer-events:none;font-variant-numeric:tabular-nums}
+.update-bar{position:fixed;z-index:35;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:var(--accent);color:var(--accent-fg);font-weight:800;padding:8px 8px 8px 18px;border-radius:16px;box-shadow:0 10px 30px -10px rgba(0,0,0,.5);max-width:calc(100% - 32px)}
+.update-bar .btn{min-height:40px;background:var(--surface);color:var(--fg);border-color:transparent}
 .toast{position:fixed;z-index:40;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);font-weight:700;padding:12px 18px;border-radius:14px;max-width:min(560px,calc(100% - 32px));text-align:center;box-shadow:0 10px 30px -10px rgba(0,0,0,.5)}
 
 @media (max-width:760px){
@@ -291,14 +294,15 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,textarea:
 <div class="overlay" id="settings" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="setTitle">
     <div class="sheet-head"><h2 id="setTitle">Innstillinger</h2><button class="btn" id="closeSettings" type="button">Ferdig</button></div>
-    <div class="setting"><div><b>Notenavn</b><small>Norsk bruker H der engelsk bruker B.</small></div>
-      <div class="seg" role="group" aria-label="Notenavn"><button type="button" data-naming="no">C D E … H</button><button type="button" data-naming="en">C D E … B</button></div></div>
+    <div class="setting"><div><b>Notenavn</b><small>Engelsk (B) er standard. Norsk bruker H der engelsk bruker B.</small></div>
+      <div class="seg" role="group" aria-label="Notenavn"><button type="button" data-naming="en">C D E … B</button><button type="button" data-naming="no">C D E … H</button></div></div>
     <div class="setting"><div><b>Vis notenavn</b><small>Navnet står under hver note.</small></div><button class="switch" type="button" role="switch" data-pref="names" aria-label="Vis notenavn"></button></div>
     <div class="setting"><div><b>Fargede noter</b><small>Hver tone har sin egen farge, også på tangenten.</small></div><button class="switch" type="button" role="switch" data-pref="colors" aria-label="Fargede noter"></button></div>
     <div class="setting"><div><b>Navn på tangentene</b><small>Bokstavene nederst på de hvite tangentene.</small></div><button class="switch" type="button" role="switch" data-pref="keyNames" aria-label="Navn på tangentene"></button></div>
     <div class="setting"><div><b>Metronom</b><small>Tikker i takt når du spiller i takt. Innteller kommer alltid.</small></div><button class="switch" type="button" role="switch" data-pref="metro" aria-label="Metronom"></button></div>
     <div class="setting"><div><b>Melodien spiller med</b><small>Appen spiller melodien svakt mens du spiller i takt.</small></div><button class="switch" type="button" role="switch" data-pref="guide" aria-label="Melodien spiller med"></button></div>
     <p class="home-note">Tips: I «Spill i takt» lytter iPaden på keyboardet ditt gjennom mikrofonen og gir poeng for hver tone du treffer. Legg iPaden nær høyttaleren på keyboardet.</p>
+    <p class="home-note" id="versionLine">Versjon i Claude</p>
   </div>
 </div>
 
@@ -334,6 +338,8 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,textarea:
 </div>
 
 <div class="toast" id="toast" hidden></div>
+<div class="version-tag" id="versionTag" hidden></div>
+<div class="update-bar" id="updateBar" role="status" hidden><span id="updateText">En ny versjon av Tangenta er klar.</span><button class="btn" id="updateBtn" type="button">Oppdater nå</button></div>
 </div>
 
 <script>
@@ -381,8 +387,9 @@ const CATS = [
 ];
 const LEVELS = ['', 'Lett', 'Middels', 'Utfordring'];
 
-const prefs = Object.assign({ naming:'no', names:true, colors:true, keyNames:true, metro:true, guide:false, speed:100 }, store.get('prefs', {}));
+const prefs = Object.assign({ naming:'en', names:true, colors:true, keyNames:true, metro:true, guide:false, speed:100 }, store.get('prefs', {}));
 const savePrefs = () => store.set('prefs', prefs);
+if (!prefs.bDefault) { prefs.naming = 'en'; prefs.bDefault = true; savePrefs(); }
 let progress = store.get('progress', {});
 let mine = store.get('mine', []);
 let curCat = store.get('cat', 'alle');
@@ -1077,6 +1084,7 @@ function showScreen(name) {
   screen = name;
   $('#home').hidden = name !== 'home';
   $('#practice').hidden = name !== 'practice';
+  $('#versionTag').hidden = !window.TANGENTA_VERSION || name !== 'home';
 }
 function goHome() { stopRun(); showScreen('home'); renderHome(); releaseWakeLock(); }
 $('#backBtn').addEventListener('click', goHome);
@@ -1201,6 +1209,36 @@ function frame() {
   P.offset += (want - P.offset) * (P.running ? 1 : 0.2);
   scrollG.setAttribute('transform', `translate(${(-P.offset).toFixed(1)} 0)`);
   cursorG.setAttribute('transform', `translate(${P.curX.toFixed(1)} 0)`);
+}
+
+/* ---------- versjon og oppdatering (settes av build.py i app-versjonen) ---------- */
+const APP_VERSION = window.TANGENTA_VERSION || null;
+if (APP_VERSION) {
+  $('#versionTag').textContent = `Versjon ${APP_VERSION.label}`; $('#versionTag').hidden = false;
+  $('#versionLine').textContent = `Versjon ${APP_VERSION.label} (${APP_VERSION.id})`;
+}
+$('#updateBtn').addEventListener('click', async () => {
+  try { const r = navigator.serviceWorker && await navigator.serviceWorker.getRegistration(); if (r) await r.update(); } catch (e) {}
+  location.reload();
+});
+// spør etter ny versjon ved start, når appen blir aktiv igjen, og hvert 2. minutt
+async function checkForUpdate() {
+  if (!APP_VERSION || !navigator.onLine) return;
+  try {
+    const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) return;
+    const v = await r.json();
+    if (v.id && v.id !== APP_VERSION.id) {
+      $('#updateText').textContent = `Ny versjon av Tangenta er klar (${v.label || v.id}).`;
+      $('#updateBar').hidden = false;
+    }
+  } catch (e) {}
+}
+if (APP_VERSION) {
+  checkForUpdate();
+  setInterval(() => { if (document.visibilityState === 'visible') checkForUpdate(); }, 2 * 60 * 1000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkForUpdate(); });
+  addEventListener('online', checkForUpdate);
 }
 
 renderHome();
