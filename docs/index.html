@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
 <style>html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}</style>
-<script>window.TANGENTA_VERSION = {"id": "dd40ab3", "label": "08.11.2026 11:57"};</script>
+<script>window.TANGENTA_VERSION = {"id": "dc9c889", "label": "08.11.2026 12:04"};</script>
 <meta charset="utf-8">
 <title>Tangenta</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -321,10 +321,12 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,textarea:
     <div class="sheet-head"><h2 id="setTitle">Innstillinger</h2><button class="btn" id="closeSettings" type="button">Ferdig</button></div>
     <div class="setting"><div><b>Notenavn</b><small>Engelsk (B) er standard. Norsk bruker H der engelsk bruker B.</small></div>
       <div class="seg" role="group" aria-label="Notenavn"><button type="button" data-naming="en">C D E … B</button><button type="button" data-naming="no">C D E … H</button></div></div>
+    <div class="setting"><div><b>Hvor nøye</b><small>Hvor tidlig eller sent en tone kan spilles og fortsatt telle som treff.</small></div>
+      <div class="seg" role="group" aria-label="Hvor nøye"><button type="button" data-timing="easy">Romslig</button><button type="button" data-timing="normal">Vanlig</button><button type="button" data-timing="hard">Streng</button></div></div>
     <div class="setting"><div><b>Vis notenavn</b><small>Navnet står under hver note.</small></div><button class="switch" type="button" role="switch" data-pref="names" aria-label="Vis notenavn"></button></div>
     <div class="setting"><div><b>Fargede noter</b><small>Hver tone har sin egen farge, også på tangenten.</small></div><button class="switch" type="button" role="switch" data-pref="colors" aria-label="Fargede noter"></button></div>
     <div class="setting"><div><b>Navn på tangentene</b><small>Bokstavene nederst på de hvite tangentene.</small></div><button class="switch" type="button" role="switch" data-pref="keyNames" aria-label="Navn på tangentene"></button></div>
-    <div class="setting"><div><b>Metronom</b><small>Tikker i takt når du spiller i takt. Innteller kommer alltid.</small></div><button class="switch" type="button" role="switch" data-pref="metro" aria-label="Metronom"></button></div>
+    <div class="setting"><div><b>Metronom</b><small>Tikker i takt når du spiller i takt. Nedtellingen 3, 2, 1 kommer alltid.</small></div><button class="switch" type="button" role="switch" data-pref="metro" aria-label="Metronom"></button></div>
     <div class="setting"><div><b>Melodien spiller med</b><small>Appen spiller melodien svakt mens du spiller i takt.</small></div><button class="switch" type="button" role="switch" data-pref="guide" aria-label="Melodien spiller med"></button></div>
     <p class="home-note">Tips: I «Spill i takt» lytter iPaden på keyboardet ditt gjennom mikrofonen og gir poeng for hver tone du treffer. Legg iPaden nær høyttaleren på keyboardet.</p>
     <div class="mictest">
@@ -417,7 +419,7 @@ const CATS = [
 ];
 const LEVELS = ['', 'Lett', 'Middels', 'Utfordring'];
 
-const prefs = Object.assign({ naming:'en', names:true, colors:true, keyNames:true, metro:true, guide:false, speed:100 }, store.get('prefs', {}));
+const prefs = Object.assign({ timing:'easy', naming:'en', names:true, colors:true, keyNames:true, metro:true, guide:false, speed:100 }, store.get('prefs', {}));
 const savePrefs = () => store.set('prefs', prefs);
 if (!prefs.bDefault) { prefs.naming = 'en'; prefs.bDefault = true; savePrefs(); }
 let progress = store.get('progress', {});
@@ -782,14 +784,16 @@ function startRun() {
   $('#finish').hidden = true;
   const spb = 60 / (P.song.bpm * prefs.speed / 100);
   const sb = P.notes[P.idx].start, now = a.currentTime;
-  let kFirst = Infinity, lead = 0.25;
-  if (P.mode === 'tempo') {
-    const kStart = Math.floor((sb - P.anchor) / P.step + 1e-6);
-    const onGrid = Math.abs(P.anchor + kStart * P.step - sb) < 1e-6;
-    kFirst = onGrid ? kStart - P.N : kStart - P.N + 1;
+  // nedtelling 3, 2, 1 uansett taktart, så kommer første note ett slag etter «1»
+  const lead = 0.25, counting = P.mode === 'tempo';
+  const cStart = counting ? sb - 3 * P.step : sb;
+  const t0 = now + lead - cStart * spb;
+  const nextK = counting ? Math.ceil((sb - P.anchor) / P.step - 1e-6) : Infinity;
+  P.run = { t0, spb, sb, nextNote: P.idx, nextK, marks: [], scored: mic.on, judge: P.idx };
+  if (counting) for (let c = 0; c < 3; c++) {
+    const tc = t0 + (cStart + c * P.step) * spb;
+    click(tc, c === 0); P.run.marks.push({ t: tc, n: 3 - c });
   }
-  const t0 = kFirst !== Infinity ? now + lead - (P.anchor + kFirst * P.step) * spb : now + lead - sb * spb;
-  P.run = { t0, spb, sb, nextNote: P.idx, nextK: kFirst, marks: [], scored: mic.on, judge: P.idx };
   P.running = true;
   renderNotes(); updateControls(); requestWakeLock();
 }
@@ -812,9 +816,7 @@ function tempoTick() {
       if (kb >= P.total - 1e-6) break;
       const tk = r.t0 + kb * r.spb;
       if (tk >= ahead) break;
-      const counting = kb < r.sb - 1e-6;
-      if (counting || prefs.metro) click(tk, mod(r.nextK, P.N) === 0);
-      if (counting) r.marks.push({ t: tk, n: mod(r.nextK, P.N) + 1 });
+      if (prefs.metro) click(tk, mod(r.nextK, P.N) === 0);
       r.nextK++;
     }
   }
@@ -908,7 +910,7 @@ function onPlayed(midi, source) {
         : `Hørte ${midiName(midi)} mellom notene` + (near ? ` (${Math.abs(nd).toFixed(2)} s ${nd < 0 ? 'for tidlig' : 'for sent'})` : '');
     } else mic.lastJudge = `Treff ${midiName(midi)}, ${bestDt.toFixed(2)} s fra midten`;
     if (best >= 0) {
-      const perfect = bestDt < 0.13;
+      const perfect = bestDt < timing().perfect;
       P.hits[best] = perfect ? 'p' : 'g'; delete P.misses[best];
       P.combo++; P.bestCombo = Math.max(P.bestCombo, P.combo);
       fx(P.notes[best].x, perfect ? 'Perfekt!' : 'Bra!', perfect ? 'perfect' : 'good');
@@ -919,9 +921,16 @@ function onPlayed(midi, source) {
   }
 }
 const MIC_LAT = 0.12;
+// hvor tidlig/sent en tone kan komme og fortsatt telle (sekunder)
+const TIMING = {
+  easy:   { early: 0.45, late: 0.8,  lateLen: 1.0, cap: 1.6, perfect: 0.22 },
+  normal: { early: 0.3,  late: 0.45, lateLen: 0.7, cap: 0.9, perfect: 0.14 },
+  hard:   { early: 0.18, late: 0.25, lateLen: 0.5, cap: 0.5, perfect: 0.08 }
+};
+const timing = () => TIMING[prefs.timing] || TIMING.easy;
 function noteWindow(n) {
-  const r = P.run, at = r.t0 + n.start * r.spb, len = n.beats * r.spb;
-  return { at, from: at - Math.min(0.25, Math.max(0.12, len * 0.5)), to: at + Math.max(0.25, Math.min(len * 0.7, 0.6)) };
+  const r = P.run, at = r.t0 + n.start * r.spb, len = n.beats * r.spb, T = timing();
+  return { at, from: at - T.early, to: at + Math.min(T.cap, Math.max(T.late, len * T.lateLen)) };
 }
 function fx(x, text, cls) {
   const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -1153,6 +1162,7 @@ $('#backBtn').addEventListener('click', goHome);
 function syncSettings() {
   document.querySelectorAll('[data-pref]').forEach(b => b.setAttribute('aria-checked', String(!!prefs[b.dataset.pref])));
   document.querySelectorAll('[data-naming]').forEach(b => b.setAttribute('aria-pressed', String(prefs.naming === b.dataset.naming)));
+  document.querySelectorAll('[data-timing]').forEach(b => b.setAttribute('aria-pressed', String(prefs.timing === b.dataset.timing)));
 }
 function openSettings() { syncSettings(); $('#settings').hidden = false; $('#testMic').textContent = mic.on ? 'Stopp' : 'Start'; updateDiag(); }
 $('#testMic').addEventListener('click', async () => {
@@ -1164,9 +1174,10 @@ $('#openSettings2').addEventListener('click', openSettings);
 $('#closeSettings').addEventListener('click', () => { $('#settings').hidden = true; });
 $('#settings').addEventListener('click', e => {
   if (e.target === e.currentTarget) { $('#settings').hidden = true; return; }
-  const sw = e.target.closest('[data-pref]'), nm = e.target.closest('[data-naming]');
+  const sw = e.target.closest('[data-pref]'), nm = e.target.closest('[data-naming]'), tm = e.target.closest('[data-timing]');
   if (sw) prefs[sw.dataset.pref] = !prefs[sw.dataset.pref];
   else if (nm) prefs.naming = nm.dataset.naming;
+  else if (tm) prefs.timing = tm.dataset.timing;
   else return;
   savePrefs(); syncSettings(); prefsChanged();
 });
