@@ -27,6 +27,10 @@ Sanglista er `SONGS` øverst i skriptet i `src/tangenta.html`. Notespråket:
 | `r`, `r:2` | pause |
 | `\|` | taktstrek |
 
+**To hender:** gi sangen et felt `left` med venstre hånd i samme notespråk (for eksempel `left:'C3:1 | G3:1'`). Den vises på en egen linje med F-nøkkel. Begge hender må ha like lange takter. I «Vent på meg» kan tonene spilles samtidig eller én og én.
+
+**Keyboardstørrelse** velges i Innstillinger. Klaviaturet på skjermen viser like mange tangenter, og sanger som ikke får plass flyttes en oktav.
+
 Sanger kan også legges inn i appen under **Mine sanger** (lagres på iPaden). «Kopier sangkode» gir en tekst som kan limes inn i lista her.
 
 ## Bygg

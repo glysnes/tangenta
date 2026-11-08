@@ -95,7 +95,7 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,textarea:
 .home-note{color:var(--muted);font-size:14px;max-width:70ch}
 
 /* ---------- practice ---------- */
-#practice{display:grid;grid-template-rows:auto minmax(200px,1fr) auto minmax(130px,300px);gap:10px;padding-block:10px 12px;overflow:hidden}
+#practice{display:grid;grid-template-rows:auto minmax(200px,1fr) auto minmax(90px,170px);gap:10px;padding-block:10px 12px;overflow:hidden}
 .p-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
 .p-title{flex:1;min-width:0}
 .p-title h2{margin:0;font-family:var(--font-display);font-weight:800;font-size:26px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -177,11 +177,13 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,textarea:
 .felt{height:9px;flex:none;background:var(--felt);margin:0 -3px 0}
 .keyboard{position:relative;display:flex;flex:1;min-height:0;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-touch-callout:none}
 .key{cursor:pointer}
-.key.white{flex:1 1 0;min-width:0;position:relative;background:var(--key-white);border-right:1px solid var(--key-edge);border-radius:0 0 9px 9px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;padding-bottom:12px;box-shadow:inset 0 -7px 0 var(--key-shade);transition:background .08s}
+.key.white{flex:1 1 0;min-width:0;position:relative;background:var(--key-white);border-right:1px solid var(--key-edge);border-radius:0 0 9px 9px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;padding-bottom:8px;box-shadow:inset 0 -6px 0 var(--key-shade);transition:background .08s}
 .key.white:last-child{border-right:0}
 .key.black{position:absolute;top:0;height:60%;background:var(--key-black);border-radius:0 0 7px 7px;z-index:2;box-shadow:inset 0 -6px 0 rgba(255,255,255,.12),0 3px 4px rgba(0,0,0,.35);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px}
-.kl{font-weight:800;font-size:clamp(12px,2.1vw,20px);color:var(--muted);line-height:1;pointer-events:none}
-.key.black .kl{color:var(--on-note);font-size:clamp(10px,1.5vw,15px)}
+.kl{font-weight:800;font-size:clamp(10px,1.6vw,17px);color:var(--muted);line-height:1;pointer-events:none}
+.key.black .kl{color:var(--on-note);font-size:clamp(8px,1.2vw,13px)}
+.keyboard.many .kl{font-size:clamp(8px,1.1vw,13px)}
+.keyboard.many .key.white{border-radius:0 0 5px 5px}
 .midc{width:7px;height:7px;border-radius:50%;background:var(--muted);opacity:.6;pointer-events:none}
 .key.target{background:var(--kc);box-shadow:inset 0 -7px 0 rgba(0,0,0,.18);animation:glow 1.1s ease-in-out infinite}
 .key.target .kl{color:var(--kfg,#fff)}
@@ -202,6 +204,7 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,textarea:
 .setting{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
 .setting b{display:block;font-size:16px}
 .setting small{display:block;color:var(--muted);font-size:14px;line-height:1.35}
+.setting select{font:700 16px var(--font-body);color:var(--fg);background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-height:46px;max-width:190px;flex:none}
 .switch{flex:none;width:58px;height:34px;border-radius:17px;border:0;background:var(--line);position:relative;cursor:pointer}
 .switch::after{content:"";position:absolute;top:4px;left:4px;width:26px;height:26px;border-radius:50%;background:var(--surface);transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
 .switch[aria-checked="true"]{background:var(--accent)}
@@ -241,7 +244,7 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,textarea:
   .p-title h2{font-size:21px}
   .seg button{padding:0 11px;font-size:14px}
   .speed input{width:110px}
-  #practice{grid-template-rows:auto minmax(170px,1fr) auto minmax(120px,240px)}
+  #practice{grid-template-rows:auto minmax(170px,1fr) auto minmax(80px,140px)}
 }
 @media (prefers-reduced-motion: reduce){
   *{animation:none!important;transition:none!important}
@@ -310,6 +313,7 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,textarea:
       <div class="seg" role="group" aria-label="Notenavn"><button type="button" data-naming="en">C D E … B</button><button type="button" data-naming="no">C D E … H</button></div></div>
     <div class="setting"><div><b>Hvor nøye</b><small>Hvor tidlig eller sent en tone kan spilles og fortsatt telle som treff.</small></div>
       <div class="seg" role="group" aria-label="Hvor nøye"><button type="button" data-timing="easy">Romslig</button><button type="button" data-timing="normal">Vanlig</button><button type="button" data-timing="hard">Streng</button></div></div>
+    <div class="setting"><div><b>Keyboardet ditt</b><small>Hvor mange tangenter keyboardet har. Klaviaturet på skjermen ser likt ut, og tonene som ikke får plass flyttes en oktav.</small></div><select id="kbSize" aria-label="Antall tangenter"></select></div>
     <div class="setting"><div><b>Vis notenavn</b><small>Navnet står under hver note.</small></div><button class="switch" type="button" role="switch" data-pref="names" aria-label="Vis notenavn"></button></div>
     <div class="setting"><div><b>Fargede noter</b><small>Hver tone har sin egen farge, også på tangenten.</small></div><button class="switch" type="button" role="switch" data-pref="colors" aria-label="Fargede noter"></button></div>
     <div class="setting"><div><b>Navn på tangentene</b><small>Bokstavene nederst på de hvite tangentene.</small></div><button class="switch" type="button" role="switch" data-pref="keyNames" aria-label="Navn på tangentene"></button></div>
@@ -424,15 +428,35 @@ const SONGS = [
   { id:'deck', title:'Deck the Halls', info:'Walisisk folketone', cat:'jul', level:2, bpm:100, time:'4/4',
     notes:'G4:4. F4:8 E4 D4 | C4 D4 E4 C4 | D4:8 E4:8 F4:8 D4:8 E4:4. D4:8 | C4 B3 C4:2 | G4:4. F4:8 E4 D4 | C4 D4 E4 C4 | D4:8 E4:8 F4:8 D4:8 E4:4. D4:8 | C4 B3 C4:2' },
   { id:'wewish', title:'We Wish You a Merry Christmas', info:'Engelsk julesang', cat:'jul', level:2, bpm:110, time:'3/4',
-    notes:'G4 | C5 C5:8 D5:8 C5:8 B4:8 | A4 A4 A4 | D5 D5:8 E5:8 D5:8 C5:8 | B4 G4 G4 | E5 E5:8 F5:8 E5:8 D5:8 | C5 A4 G4:8 G4:8 | A4 D5 B4 | C5:2.' }
+    notes:'G4 | C5 C5:8 D5:8 C5:8 B4:8 | A4 A4 A4 | D5 D5:8 E5:8 D5:8 C5:8 | B4 G4 G4 | E5 E5:8 F5:8 E5:8 D5:8 | C5 A4 G4:8 G4:8 | A4 D5 B4 | C5:2.' },
+
+  /* To hender: «left» er venstre hånd (bass-nøkkel). Begge stemmene må ha like lange takter. */
+  { id:'jakob2', title:'Fader Jakob med venstre hånd', info:'Venstre hånd holder en lang C i hver takt', cat:'tohender', level:1, bpm:88, time:'4/4',
+    notes:'C4 D4 E4 C4 | C4 D4 E4 C4 | E4 F4 G4:2 | E4 F4 G4:2 | G4:8 A4:8 G4:8 F4:8 E4 C4 | G4:8 A4:8 G4:8 F4:8 E4 C4 | C4 G3 C4:2 | C4 G3 C4:2',
+    left:'C3:1 | C3:1 | C3:1 | C3:1 | C3:1 | C3:1 | C3:1 | C3:1' },
+  { id:'mary2', title:'Mary Had a Little Lamb, to hender', info:'Venstre hånd veksler mellom C og G', cat:'tohender', level:1, bpm:88, time:'4/4',
+    notes:'E4 D4 C4 D4 | E4 E4 E4:2 | D4 D4 D4:2 | E4 G4 G4:2 | E4 D4 C4 D4 | E4 E4 E4 E4 | D4 D4 E4 D4 | C4:1',
+    left:'C3:1 | C3:1 | G3:1 | C3:1 | C3:1 | C3:1 | G3:1 | C3:1' },
+  { id:'ode2', title:'Ode til gleden, to hender', info:'Beethoven. Venstre hånd spiller C og G', cat:'tohender', level:1, bpm:92, time:'4/4',
+    notes:'E4 E4 F4 G4 | G4 F4 E4 D4 | C4 C4 D4 E4 | E4:4. D4:8 D4:2 | E4 E4 F4 G4 | G4 F4 E4 D4 | C4 C4 D4 E4 | D4:4. C4:8 C4:2',
+    left:'C3:1 | G3:1 | C3:1 | G3:1 | C3:1 | G3:1 | C3:1 | G3:2 C3:2' },
+  { id:'lisa2', title:'Lisa gikk til skolen, to hender', info:'Venstre hånd spiller C og G', cat:'tohender', level:1, bpm:92, time:'4/4',
+    notes:'G4 E4 E4:2 | F4 D4 D4:2 | C4 D4 E4 F4 | G4 G4 G4:2 | G4 E4 E4:2 | F4 D4 D4:2 | C4 E4 G4 G4 | C4:1',
+    left:'C3:1 | G3:1 | C3:1 | C3:1 | C3:1 | G3:1 | C3:2 G3:2 | C3:1' },
+  { id:'blinke2', title:'Blinke, blinke, to hender', info:'Venstre hånd bytter tone midt i takten: C, F og G', cat:'tohender', level:2, bpm:84, time:'4/4',
+    notes:'C4 C4 G4 G4 | A4 A4 G4:2 | F4 F4 E4 E4 | D4 D4 C4:2 | G4 G4 F4 F4 | E4 E4 D4:2 | G4 G4 F4 F4 | E4 E4 D4:2 | C4 C4 G4 G4 | A4 A4 G4:2 | F4 F4 E4 E4 | D4 D4 C4:2',
+    left:'C3:1 | F3:2 C3:2 | F3:2 C3:2 | G3:2 C3:2 | C3:2 G3:2 | C3:2 G3:2 | C3:2 G3:2 | C3:2 G3:2 | C3:1 | F3:2 C3:2 | F3:2 C3:2 | G3:2 C3:2' },
+  { id:'bjelle2', title:'Bjelleklang, to hender', info:'Venstre hånd spiller C, F og G', cat:'tohender', level:2, bpm:104, time:'4/4',
+    notes:'E4 E4 E4:2 | E4 E4 E4:2 | E4 G4 C4:4. D4:8 | E4:1 | F4 F4 F4:4. F4:8 | F4 E4 E4 E4:8 E4:8 | E4 D4 D4 E4 | D4:2 G4:2 | E4 E4 E4:2 | E4 E4 E4:2 | E4 G4 C4:4. D4:8 | E4:1 | F4 F4 F4 F4 | F4 E4 E4 E4:8 E4:8 | G4 G4 F4 D4 | C4:1',
+    left:'C3:1 | C3:1 | C3:1 | C3:1 | F3:1 | C3:1 | G3:1 | G3:1 | C3:1 | C3:1 | C3:1 | C3:1 | F3:1 | C3:1 | G3:1 | C3:1' }
 ];
 const CATS = [
   { id:'alle', label:'Alle' }, { id:'barn', label:'Barnesanger' }, { id:'klassisk', label:'Klassisk' },
-  { id:'folk', label:'Folketoner' }, { id:'jul', label:'Jul' }, { id:'mine', label:'Mine sanger' }
+  { id:'folk', label:'Folketoner' }, { id:'jul', label:'Jul' }, { id:'tohender', label:'To hender' }, { id:'mine', label:'Mine sanger' }
 ];
 const LEVELS = ['', 'Lett', 'Middels', 'Utfordring'];
 
-const prefs = Object.assign({ timing:'easy', naming:'en', names:true, colors:true, keyNames:true, metro:true, guide:false, speed:100 }, store.get('prefs', {}));
+const prefs = Object.assign({ timing:'easy', naming:'en', names:true, colors:true, keyNames:true, metro:true, guide:false, speed:100, kb:'auto' }, store.get('prefs', {}));
 const savePrefs = () => store.set('prefs', prefs);
 if (!prefs.bDefault) { prefs.naming = 'en'; prefs.bDefault = true; savePrefs(); }
 let progress = store.get('progress', {});
@@ -483,80 +507,116 @@ function midiLi(m) { const pc = ((m % 12) + 12) % 12; return pc in WHITE_LI ? WH
 const noteFill = li => prefs.colors ? NC[li] : 'var(--ink)';
 const noteFg = li => li === 2 ? 'var(--on-yellow)' : 'var(--on-note)';
 const isWhite = m => (((m % 12) + 12) % 12) in WHITE_LI;
+// vanlige keyboard: laveste og høyeste tangent (MIDI-nummer)
+const KB_SIZES = [
+  { id:'25', n:25, lo:48, hi:72, note:'C til C' }, { id:'32f', n:32, lo:53, hi:84, note:'F til C' }, { id:'32c', n:32, lo:48, hi:79, note:'C til G' },
+  { id:'37', n:37, lo:48, hi:84, note:'C til C' }, { id:'44', n:44, lo:41, hi:84, note:'F til C' }, { id:'49', n:49, lo:36, hi:84, note:'C til C' },
+  { id:'61', n:61, lo:36, hi:96, note:'C til C' }, { id:'76', n:76, lo:28, hi:103, note:'E til G' }, { id:'88', n:88, lo:21, hi:108, note:'A til C' }
+];
 
 /* ================= NOTESYSTEM (SVG) ================= */
 const G = 18, TOP = 80, BOT = TOP + 4 * G, START_X = 152, PANEL_W = 124;
-const stepY = s => BOT - (s - 30) * (G / 2);
+// et notesystem: øverste og nederste linje, og trinnet til nederste linje (E4 i G-nøkkel, G2 i F-nøkkel)
+const TREBLE = { top: TOP, bot: BOT, base: 30 };
+const sY = (st, s) => st.bot - (s - st.base) * (G / 2);
+const stepY = s => sY(TREBLE, s);
+const same = (a, b) => Math.abs(a - b) < 1e-6;
 
+// samme x for alt som starter samtidig (begge hender), avstand etter tiden til neste anslag
 function layout(items) {
   let x = START_X;
-  for (const it of items) {
-    if (it.type === 'bar') { x += 2; it.x = x; x += 30; continue; }
-    if (it.acc) x += 14;
-    it.x = x;
-    x += Math.round(40 + 40 * Math.pow(it.beats, 0.7)) + (it.dot ? 8 : 0);
+  for (let i = 0; i < items.length;) {
+    const it = items[i];
+    if (it.type === 'bar') { x += 2; it.x = x; x += 30; i++; continue; }
+    let j = i; while (j < items.length && items[j].type !== 'bar' && same(items[j].start, it.start)) j++;
+    const grp = items.slice(i, j);
+    let next = null; for (let k = j; k < items.length; k++) if (items[k].type !== 'bar') { next = items[k].start; break; }
+    const dur = next != null ? next - it.start : Math.max(...grp.map(g => g.beats));
+    if (grp.some(g => g.acc)) x += 14;
+    for (const g of grp) g.x = x;
+    x += Math.round(40 + 40 * Math.pow(dur, 0.7)) + (grp.some(g => g.dot) ? 8 : 0);
+    i = j;
   }
   return x + 16;
 }
 function geometry(notes) {
-  let minS = 30;
-  for (const n of notes) if (n.type === 'note') minS = Math.min(minS, n.step);
-  const chipY = Math.max(250, stepY(minS) + 44);
-  return { chipY, H: chipY + 34 };
+  const rh = notes.filter(n => n.type === 'note' && n.hand !== 'l'), lh = notes.filter(n => n.type === 'note' && n.hand === 'l');
+  const minR = rh.reduce((m, n) => Math.min(m, n.step), 30);
+  if (!notes.some(n => n.hand === 'l')) {
+    const chipY = Math.max(250, stepY(minR) + 44);
+    return { staves: [Object.assign({ chipY }, TREBLE)], chipY, H: chipY + 34 };
+  }
+  const rChip = Math.max(BOT + 56, stepY(minR) + 44);
+  const maxL = lh.reduce((m, n) => Math.max(m, n.step), 26), minL = lh.reduce((m, n) => Math.min(m, n.step), 18);
+  const btop = rChip + 34 + Math.max(16, (maxL - 26) * (G / 2) + 16);
+  const bass = { top: btop, bot: btop + 4 * G, base: 18 };
+  bass.chipY = Math.max(bass.bot + 40, sY(bass, minL) + 44);
+  return { staves: [Object.assign({ chipY: rChip }, TREBLE), bass], chipY: bass.chipY, H: bass.chipY + 34 };
 }
-function staffLines(x0, x1) {
+const stavesOf = geo => geo.staves || [Object.assign({ chipY: geo.chipY }, TREBLE)];
+function staffLines(x0, x1, staves) {
   let s = '';
-  for (let i = 0; i < 5; i++) { const y = TOP + i * G; s += `<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" class="sl"/>`; }
+  for (const st of staves || [TREBLE]) for (let i = 0; i < 5; i++) { const y = st.top + i * G; s += `<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" class="sl"/>`; }
   return s;
 }
-function clefPanel(time, H, fade) {
-  const [a, b] = String(time || '4/4').split('/');
-  return `<rect x="0" y="0" width="${PANEL_W}" height="${H}" style="fill:var(--surface)"/>` +
+function clefPanel(time, geo, fade) {
+  const [a, b] = String(time || '4/4').split('/'), H = geo.H, sts = stavesOf(geo), last = sts[sts.length - 1];
+  let s = `<rect x="0" y="0" width="${PANEL_W}" height="${H}" style="fill:var(--surface)"/>` +
     (fade ? `<rect x="${PANEL_W}" y="0" width="26" height="${H}" fill="url(#fade)"/>` : '') +
-    staffLines(0, PANEL_W + (fade ? 26 : 0)) +
-    `<line x1="2" y1="${TOP}" x2="2" y2="${BOT}" class="bar"/>` +
-    `<text x="16" y="${TOP + 3 * G}" class="clef">𝄞</text>` +
-    `<text x="94" y="${TOP + 33}" class="ts">${a}</text><text x="94" y="${TOP + 69}" class="ts">${b}</text>`;
+    staffLines(0, PANEL_W + (fade ? 26 : 0), sts) +
+    `<line x1="2" y1="${TOP}" x2="2" y2="${last.bot}" class="bar"/>`;
+  if (sts.length > 1) s += `<rect x="0" y="${TOP}" width="4" height="${last.bot - TOP}" class="barthick"/>`;
+  sts.forEach((st, i) => {
+    s += i === 0 ? `<text x="16" y="${st.top + 3 * G}" class="clef">𝄞</text>` : `<text x="16" y="${st.top + G + 48}" class="clef">𝄢</text>`;
+    s += `<text x="94" y="${st.top + 33}" class="ts">${a}</text><text x="94" y="${st.top + 69}" class="ts">${b}</text>`;
+  });
+  return s;
 }
 function accSvg(acc, cx, y) {
   if (acc > 0) return `<g class="acc"><path d="M${cx - 3} ${y - 14}v27M${cx + 3} ${y - 16}v27" stroke-width="1.7"/><path d="M${cx - 7} ${y - 3}l14 -4M${cx - 7} ${y + 6}l14 -4" stroke-width="3.6"/></g>`;
   return `<g class="acc"><path d="M${cx - 4} ${y - 21}v27" stroke-width="1.9"/><path d="M${cx - 4} ${y + 6}C${cx + 7} ${y} ${cx + 7} ${y - 9} ${cx - 4} ${y - 3}" stroke-width="2.6"/></g>`;
 }
-function restSvg(it, x) {
-  const mid = TOP + 2 * G;
-  if (it.dur === 1) return `<rect class="rest" x="${x - 9}" y="${TOP + G}" width="18" height="8"/>`;
+function restSvg(it, x, st) {
+  const top = st.top, mid = top + 2 * G;
+  if (it.dur === 1) return `<rect class="rest" x="${x - 9}" y="${top + G}" width="18" height="8"/>`;
   if (it.dur === 2) return `<rect class="rest" x="${x - 9}" y="${mid - 8}" width="18" height="8"/>`;
   if (it.dur === 4) return `<path class="rest" d="M${x - 4} ${mid - 24}l10 12l-7 8l9 11c-7 -3 -12 0 -7 7c-10 -5 -9 -15 1 -13l-10 -12l7 -8z"/>`;
   let s = `<path class="rest-s" d="M${x + 6} ${mid - 10}L${x - 1} ${mid + 16}"/><circle class="rest" cx="${x - 3}" cy="${mid - 8}" r="4"/><path class="rest-s" d="M${x - 3} ${mid - 5}q5 2 9 -5"/>`;
   if (it.dur === 16) s += `<circle class="rest" cx="${x - 6}" cy="${mid + 2}" r="4"/><path class="rest-s" d="M${x - 6} ${mid + 5}q5 2 10 -5"/>`;
   return s;
 }
-function ghostSvg(midi, x) {
-  const li = midiLi(midi), acc = isWhite(midi) ? 0 : 1, step = li + 7 * (Math.floor(midi / 12) - 1), y = stepY(step);
-  let g = '<g class="ghostnote">';
-  for (let k = 28; k >= step; k -= 2) g += `<line x1="${x - 15}" x2="${x + 15}" y1="${stepY(k)}" y2="${stepY(k)}"/>`;
-  for (let k = 40; k <= step; k += 2) g += `<line x1="${x - 15}" x2="${x + 15}" y1="${stepY(k)}" y2="${stepY(k)}"/>`;
+function ledgers(st, step, x, w, cls) {
+  let g = '';
+  for (let k = st.base - 2; k >= step; k -= 2) g += `<line x1="${x - w}" x2="${x + w}" y1="${sY(st, k)}" y2="${sY(st, k)}"${cls}/>`;
+  for (let k = st.base + 10; k <= step; k += 2) g += `<line x1="${x - w}" x2="${x + w}" y1="${sY(st, k)}" y2="${sY(st, k)}"${cls}/>`;
+  return g;
+}
+function ghostSvg(midi, x, st) {
+  st = st || TREBLE;
+  const li = midiLi(midi), acc = isWhite(midi) ? 0 : 1, step = li + 7 * (Math.floor(midi / 12) - 1), y = sY(st, step);
+  let g = '<g class="ghostnote">' + ledgers(st, step, x, 15, '');
   if (acc) g += accSvg(1, x - 22, y);
   g += `<ellipse cx="${x}" cy="${y}" rx="10.6" ry="7.6" transform="rotate(-22 ${x} ${y})"/>`;
-  g += `<text x="${x + 2}" y="${step >= 34 ? y + 26 : y - 15}">${midiName(midi)}</text></g>`;
+  g += `<text x="${x + 2}" y="${step >= st.base + 4 ? y + 26 : y - 15}">${midiName(midi)}</text></g>`;
   return g;
 }
 function notesMarkup(items, endX, geo, st) {
-  const { chipY, H } = geo; let s = '', ni = -1;
+  const H = geo.H, sts = stavesOf(geo), last = sts[sts.length - 1], cs = st.curStart;
+  let s = '', ni = -1;
   for (const it of items) {
-    if (it.type === 'bar') { s += `<line x1="${it.x}" y1="${TOP}" x2="${it.x}" y2="${BOT}" class="bar"/>`; continue; }
+    if (it.type === 'bar') { s += `<line x1="${it.x}" y1="${TOP}" x2="${it.x}" y2="${last.bot}" class="bar"/>`; continue; }
     ni++;
-    const x = it.x, cls = ['n'];
-    if (ni === st.cur) cls.push('cur'); else if (ni < st.cur) cls.push('done');
+    const sf = sts[it.hand === 'l' && sts[1] ? 1 : 0], x = it.x, cls = ['n'];
+    const cur = cs != null && same(it.start, cs);
+    if (cur) cls.push('cur'); else if (cs != null && it.start < cs) cls.push('done');
     if (st.hits && st.hits[ni]) cls.push('hit'); else if (st.misses && st.misses[ni]) cls.push('miss');
     let g = `<g class="${cls.join(' ')}"><rect class="hitbox" x="${x - 26}" y="16" width="52" height="${H - 24}" data-i="${ni}"/>`;
-    if (it.type === 'rest') { s += g + restSvg(it, x) + '</g>'; continue; }
-    const y = stepY(it.step), col = noteFill(it.li);
-    if (ni === st.cur) g += `<circle cx="${x}" cy="${y}" r="21" class="halo"/>`;
-    for (let k = 28; k >= it.step; k -= 2) g += `<line x1="${x - 17}" x2="${x + 17}" y1="${stepY(k)}" y2="${stepY(k)}" class="ledger"/>`;
-    for (let k = 40; k <= it.step; k += 2) g += `<line x1="${x - 17}" x2="${x + 17}" y1="${stepY(k)}" y2="${stepY(k)}" class="ledger"/>`;
+    if (it.type === 'rest') { s += g + restSvg(it, x, sf) + '</g>'; continue; }
+    const y = sY(sf, it.step), col = noteFill(it.li);
+    if (cur && !(st.hits && st.hits[ni])) g += `<circle cx="${x}" cy="${y}" r="21" class="halo"/>`;
+    g += ledgers(sf, it.step, x, 17, ' class="ledger"');
     if (it.dur > 1) {
-      const up = it.step < 34, sx = up ? x + 9.4 : x - 9.4, ey = up ? y - 62 : y + 62;
+      const up = it.step < sf.base + 4, sx = up ? x + 9.4 : x - 9.4, ey = up ? y - 62 : y + 62;
       g += `<line x1="${sx}" y1="${y}" x2="${sx}" y2="${ey}" class="stem"/>`;
       const flags = it.dur === 8 ? 1 : it.dur === 16 ? 2 : 0;
       for (let f = 0; f < flags; f++) {
@@ -568,18 +628,18 @@ function notesMarkup(items, endX, geo, st) {
     if (it.acc) g += accSvg(it.acc, x - 25, y);
     const hollow = it.dur <= 2;
     g += `<ellipse cx="${x}" cy="${y}" rx="10.6" ry="7.6" transform="rotate(-22 ${x} ${y})" class="head${hollow ? ' hollow' : ''}" style="fill:${hollow ? 'var(--surface)' : col};stroke:${col}"/>`;
-    if (st.wrong && st.wrong[ni] != null) g += ghostSvg(st.wrong[ni], x + 28);
-    if (it.dot) g += `<circle class="dot" cx="${x + 18}" cy="${(it.step - 30) % 2 === 0 ? y - 4.5 : y}" r="3.2"/>`;
+    if (st.wrong && st.wrong[ni] != null) g += ghostSvg(st.wrong[ni], x + 28, sf);
+    if (it.dot) g += `<circle class="dot" cx="${x + 18}" cy="${(((it.step - sf.base) % 2) + 2) % 2 === 0 ? y - 4.5 : y}" r="3.2"/>`;
     if (prefs.names) {
       const name = noteName(it), w = Math.max(34, 16 + name.length * 10);
       const fill = prefs.colors ? col : 'var(--surface-2)', fg = prefs.colors ? noteFg(it.li) : 'var(--ink)';
-      g += `<rect class="chip" x="${x - w / 2}" y="${chipY - 16}" width="${w}" height="32" rx="16" style="fill:${fill}"/><text class="chip-t" x="${x}" y="${chipY + 6}" style="fill:${fg}">${name}</text>`;
+      g += `<rect class="chip" x="${x - w / 2}" y="${sf.chipY - 16}" width="${w}" height="32" rx="16" style="fill:${fill}"/><text class="chip-t" x="${x}" y="${sf.chipY + 6}" style="fill:${fg}">${name}</text>`;
     }
     if (st.hits && st.hits[ni]) g += `<circle class="ring-ok" cx="${x}" cy="${y}" r="17"/>`;
     else if (st.misses && st.misses[ni]) g += `<circle class="ring-bad" cx="${x}" cy="${y}" r="17"/>`;
     s += g + '</g>';
   }
-  s += `<line x1="${endX - 14}" y1="${TOP}" x2="${endX - 14}" y2="${BOT}" class="bar"/><rect class="barthick" x="${endX - 9}" y="${TOP}" width="5" height="${4 * G}"/>`;
+  s += `<line x1="${endX - 14}" y1="${TOP}" x2="${endX - 14}" y2="${last.bot}" class="bar"/><rect class="barthick" x="${endX - 9}" y="${TOP}" width="5" height="${last.bot - TOP}"/>`;
   return s;
 }
 
@@ -639,13 +699,13 @@ async function micStart() {
     setAudioSession('play-and-record');
     mic.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation:false, noiseSuppression:false, autoGainControl:false } });
     const src = a.createMediaStreamSource(mic.stream);
-    mic.an = a.createAnalyser(); mic.an.fftSize = 2048;
+    mic.an = a.createAnalyser(); mic.an.fftSize = 8192;
     src.connect(mic.an);
     // Safari behandler bare noder som ender i høyttaleren: koble analysen dit via null-volum.
     const sink = a.createGain(); sink.gain.value = 0;
     mic.an.connect(sink); sink.connect(a.destination);
     mic.src = src; mic.sink = sink;
-    mic.buf = new Float32Array(mic.an.fftSize);
+    mic.big = new Float32Array(mic.an.fftSize); mic.buf = mic.big.subarray(mic.big.length - 2048);
     mic.on = true; mic.accepted = -1; mic.onset = false; mic.stable = 0;
     updateMicUi(); updateHud();
     return true;
@@ -714,6 +774,70 @@ function detectPitch(raw, sr) {
   const shift = (a - 2 * b + c) ? 0.5 * (a - c) / (a - 2 * b + c) : 0;
   return { freq: sr / (pick + shift), clarity: b };
 }
+/* Sjekk av forventede toner: appen vet hvilke toner som skal komme, og ser etter akkurat dem i lyden
+   (Goertzel på ~170 ms lyd). Slik kan to toner samtidig høres, og lyse toner som tonehøydemåleren mister. */
+const mf = m => 440 * Math.pow(2, (m - 69) / 12);
+function prepWin() {
+  const B = mic.big, N = B.length;
+  if (!mic.win || mic.win.length !== N) {
+    mic.win = new Float32Array(N); mic.hann = new Float32Array(N);
+    for (let i = 0; i < N; i++) mic.hann[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / (N - 1));
+  }
+  let mean = 0; for (let i = 0; i < N; i++) mean += B[i]; mean /= N;
+  let e = 0; for (let i = 0; i < N; i++) { const v = B[i] - mean; mic.win[i] = v * mic.hann[i]; e += v * v; }
+  return Math.sqrt(2 * e / N);
+}
+function gAmp(f, sr, w) {
+  w = w || mic.win; const N = w.length, c = 2 * Math.cos(2 * Math.PI * f / sr);
+  let s1 = 0, s2 = 0;
+  for (let i = 0; i < N; i++) { const s0 = w[i] + c * s1 - s2; s2 = s1; s1 = s0; }
+  return 4 * Math.sqrt(Math.max(0, s1 * s1 + s2 * s2 - c * s1 * s2)) / N;
+}
+function pcPresent(pc, sr, A) {
+  for (let m = 48; m <= 100; m++) {
+    if (mod(m, 12) !== pc) continue;
+    const f = mf(m); if (f < 250 || f > 2100) continue;
+    const a = gAmp(f, sr);
+    if (a < 0.12 * A) continue;                                   // for svak i forhold til all lyden
+    if (mic.base && !(m in mic.base)) mic.base[m] = mic.onWin ? gAmp(f, sr, mic.onWin) : 0;
+    if (a < 2 * ((mic.base && mic.base[m]) || 0) + 0.0005) continue; // var der før anslaget
+    if (a < 1.6 * Math.max(gAmp(mf(m - 1), sr), gAmp(mf(m + 1), sr))) continue; // ikke en tydelig topp
+    let sub = 0;                                                   // overtone av en dypere tone?
+    for (const d of [f / 3, 2 * f / 3, f / 5, 2 * f / 5]) if (d >= 70) sub = Math.max(sub, gAmp(d, sr));
+    if (sub > 1.5 * a) continue;
+    return true;
+  }
+  return false;
+}
+function expectedPcs() {
+  const out = [], seen = new Set();
+  const add = j => { const n = P.notes[j], pc = mod(n.midi, 12); if (!seen.has(pc)) { seen.add(pc); out.push({ pc, midi: n.midi }); } };
+  if (screen !== 'practice' || !P.song) return out;
+  if (P.mode === 'wait') {
+    if (P.idx < P.notes.length && $('#finish').hidden) for (const j of stepNotes(P.idx)) if (!P.hits[j]) add(j);
+  } else if (P.mode === 'tempo' && P.running && P.run) {
+    const t = mic.onsetAc - MIC_LAT;
+    for (let j = P.run.judge; j < P.notes.length; j++) {
+      const n = P.notes[j]; if (n.type !== 'note' || P.hits[j] || P.misses[j]) continue;
+      const w = noteWindow(n); if (w.from > t) break; if (t <= w.to) add(j);
+    }
+  }
+  return out;
+}
+function polyCheck(tms) {
+  if (!mic.onsetT || tms - mic.onsetT > 650 || !mic.onsetPcs) return;
+  const cands = expectedPcs().filter(c => !mic.onsetPcs.has(c.pc)); if (!cands.length) return;
+  const sr = ac.sampleRate, A = prepWin();
+  for (const c of cands) {
+    if (pcPresent(c.pc, sr, A)) {
+      mic.polyN[c.pc] = (mic.polyN[c.pc] || 0) + 1;
+      if (mic.polyN[c.pc] >= 2) {
+        mic.onsetPcs.add(c.pc); mic.polyHits = (mic.polyHits || 0) + 1; mic.liveShown = -2;
+        showHeard(c.midi); onPlayed(c.midi, 'mic', { fresh: true, at: mic.onsetAc, poly: true });
+      }
+    } else mic.polyN[c.pc] = 0;
+  }
+}
 function showLive() {
   const m = mic.live == null ? -1 : mic.live;
   if (m === mic.liveShown) return;
@@ -734,6 +858,7 @@ function updateDiag() {
     ['Lydnivå', mic.on ? (mic.rmsNow || 0).toFixed(4) : '–'],
     ['Analyse', mic.on ? (mic.diag || '–') : '–'],
     ['Godtatte toner', mic.on ? `${mic.count || 0}${mic.lastName ? ', siste ' + mic.lastName : ''}` : '–'],
+    ['Funnet i samklang', mic.on ? String(mic.polyHits || 0) : '–'],
     ['Omstarter', mic.restarts ? `${mic.restarts} (${mic.lastRestartReason})` : '0'],
     ['Siste vurdering', mic.lastJudge || '–']
   ].map(([k, v]) => `<dt>${k}</dt><dd>${esc(String(v))}</dd>`).join('');
@@ -743,7 +868,7 @@ function micTick() {
   if (ac.state !== 'running') { mic.health = 'lydmotor ' + ac.state; ac.resume().catch(() => {}); }
   const tr = mic.stream && mic.stream.getAudioTracks()[0];
   if (tr && tr.readyState === 'ended') { micRestart('strømmen stoppet'); return; }
-  mic.an.getFloatTimeDomainData(mic.buf);
+  mic.an.getFloatTimeDomainData(mic.big);
   let sum = 0; for (let i = 0; i < mic.buf.length; i++) sum += mic.buf[i] * mic.buf[i];
   const rms = Math.sqrt(sum / mic.buf.length);
   mic.rmsNow = rms;
@@ -763,9 +888,15 @@ function micTick() {
   const fast = Math.sqrt(f2 / 512), tms = performance.now();
   const fastMin = mic.rms.length ? Math.min(...mic.rms) : 0;
   mic.minSince = mic.minSince == null ? fast : Math.min(mic.minSince, fast);
-  if (tms > (mic.refract || 0) && fast > 0.003 && (fast > fastMin * 1.3 + 0.0008 || fast > mic.minSince * 1.7 + 0.0008)) mic.onset = true;
+  if (tms > (mic.refract || 0) && fast > 0.003 && (fast > fastMin * 1.3 + 0.0008 || fast > mic.minSince * 1.7 + 0.0008)) {
+    // nytt anslag: husk tid, og hvor sterk hver tone var rett før (så en tone som bare klinger videre ikke teller)
+    mic.onset = true; mic.onsetT = tms; mic.onsetAc = ac.currentTime; mic.onsetPcs = new Set(); mic.polyN = {};
+    mic.refract = tms + 110; mic.minSince = fast;
+    prepWin(); mic.onWin = mic.win.slice(); mic.base = {};
+  }
   mic.rms.push(fast); if (mic.rms.length > 6) mic.rms.shift();
   if (rms < 0.0018) { mic.stable = 0; mic.lastMidi = -1; mic.accepted = -1; mic.diag = 'for svak lyd'; mic.live = null; return; }
+  polyCheck(tms);
   const p = detectPitch(mic.buf, ac.sampleRate);
   mic.diag = p ? `${p.freq.toFixed(0)} Hz, klarhet ${p.clarity.toFixed(2)}` : 'ingen tone funnet';
   if (!p || p.clarity < (p.freq > 600 ? 0.5 : 0.6) || p.freq < 60 || p.freq > 2400) { mic.stable = 0; mic.live = null; return; }
@@ -776,12 +907,15 @@ function micTick() {
   mic.lastMidi = midi;
   if (mic.stable === 2 || (mic.stable > 2 && mic.onset)) {
     if (midi % 12 !== mic.accepted % 12 || mic.onset) {
+      const fresh = mic.onset, pc = mod(midi, 12);
       mic.accepted = midi; mic.onset = false; mic.refract = tms + 110; mic.minSince = fast;
-      const li = midiLi(midi);
       mic.liveShown = -2;
       showHeard(midi);
       mic.count = (mic.count || 0) + 1; mic.lastName = midiName(midi) + (Math.floor(midi / 12) - 1);
-      onPlayed(midi, 'mic');
+      // allerede telt av sjekken for flere toner i samme anslag
+      if (fresh && mic.onsetPcs && mic.onsetPcs.has(pc)) return;
+      if (mic.onsetPcs) mic.onsetPcs.add(pc);
+      onPlayed(midi, 'mic', { fresh });
     }
   }
 }
@@ -797,25 +931,60 @@ function timeInfo(time) {
   if (den === 8 && num % 3 === 0) return { step: 1.5, N: num / 3, bar: num * 0.5 };
   return { step: 4 / den, N: num, bar: num * 4 / den };
 }
-function firstPlayable(i) { while (i < P.notes.length && P.notes[i].type === 'rest') i++; return i; }
+// et «steg» er alle noter (begge hender) som starter samtidig; P.idx peker på første note i steget
+function stepEnd(i) { if (i >= P.notes.length) return P.notes.length; let j = i; while (j < P.notes.length && same(P.notes[j].start, P.notes[i].start)) j++; return j; }
+function stepStart(i) { while (i > 0 && i < P.notes.length && same(P.notes[i - 1].start, P.notes[i].start)) i--; return i; }
+function stepNotes(i) { const r = [], e = stepEnd(i); for (let j = i; j < e; j++) if (P.notes[j].type === 'note') r.push(j); return r; }
+function firstPlayable(i) { while (i < P.notes.length && !stepNotes(i).length) i = stepEnd(i); return i; }
+function songItems(song) {
+  const r = parseNotes(song.notes);
+  let items = r.items, total = r.total;
+  for (const it of items) it.hand = 'r';
+  if (song.left) {
+    const l = parseNotes(song.left), li = l.items.filter(i => i.type !== 'bar');
+    for (const it of li) it.hand = 'l';
+    total = Math.max(total, l.total);
+    const key = i => i.type === 'bar' ? i.beat : i.start;
+    items = items.concat(li).map((it, k) => ({ it, k })).sort((a, b) => {
+      const d = key(a.it) - key(b.it); if (Math.abs(d) > 1e-6) return d;
+      return ((a.it.type === 'bar' ? 0 : 1) - (b.it.type === 'bar' ? 0 : 1)) || ((a.it.hand === 'l') - (b.it.hand === 'l')) || (a.k - b.k);
+    }).map(o => o.it);
+  }
+  return { items, total };
+}
+// legg sangen på tangentene keyboardet faktisk har: flytt hele sangen en oktav om det trengs, og brett resten inn
+function mapToKeyboard() {
+  const ns = P.notes.filter(n => n.type === 'note'), kbd = KB_SIZES.find(k => k.id === prefs.kb);
+  let lo = 127, hi = 0; for (const n of ns) { lo = Math.min(lo, n.midi); hi = Math.max(hi, n.midi); }
+  if (lo > hi) { lo = 60; hi = 72; }
+  if (!kbd) {
+    for (const n of ns) n.kmidi = n.midi;
+    lo = lo - (lo % 12); hi = hi + (11 - (hi % 12)); if (hi - lo + 1 < 24) hi += 12;
+    P.lo = lo; P.hi = hi; P.kshift = 0; return;
+  }
+  let best = 0, bestOut = Infinity;
+  for (const sh of [0, 12, -12, 24, -24, 36, -36]) {
+    const out = ns.filter(n => n.midi + sh < kbd.lo || n.midi + sh > kbd.hi).length;
+    if (out < bestOut) { bestOut = out; best = sh; }
+  }
+  for (const n of ns) { let m = n.midi + best; while (m < kbd.lo) m += 12; while (m > kbd.hi) m -= 12; n.kmidi = m; }
+  P.lo = kbd.lo; P.hi = kbd.hi; P.kshift = best;
+}
+const foldKey = m => { if (P.hi - P.lo < 11) return m; while (m < P.lo) m += 12; while (m > P.hi) m -= 12; return m; };
+const nearOct = (m, target) => m + 12 * Math.round((target - m) / 12);
 
 function openSong(song) {
   stopRun();
   P.song = song;
-  const p = parseNotes(song.notes);
-  P.items = p.items; P.total = p.total;
+  const p = songItems(song);
+  P.items = p.items; P.total = p.total; P.two = !!song.left; P.recent = [];
   P.notes = p.items.filter(i => i.type !== 'bar');
   P.endX = layout(P.items);
   P.geo = geometry(P.notes);
   const ti = timeInfo(song.time); P.step = ti.step; P.N = ti.N;
   const fb = P.items.find(i => i.type === 'bar');
   P.anchor = fb && fb.beat > 1e-6 && fb.beat < ti.bar - 1e-6 ? fb.beat : 0;
-  let lo = 127, hi = 0;
-  for (const n of P.notes) if (n.type === 'note') { lo = Math.min(lo, n.midi); hi = Math.max(hi, n.midi); }
-  if (lo > hi) { lo = 60; hi = 72; }
-  lo = lo - (lo % 12); hi = hi + (11 - (hi % 12));
-  if (hi - lo + 1 < 24) hi += 12;
-  P.lo = lo; P.hi = hi;
+  mapToKeyboard();
   $('#pTitle').textContent = song.title;
   $('#pInfo').textContent = song.info || 'Min sang';
   showScreen('practice');
@@ -826,7 +995,7 @@ function openSong(song) {
 }
 function resetPosition() {
   stopRun();
-  P.idx = firstPlayable(0); P.hits = {}; P.misses = {}; P.wrong = {}; P.combo = 0; P.bestCombo = 0;
+  P.idx = firstPlayable(0); P.hits = {}; P.misses = {}; P.wrong = {}; P.combo = 0; P.bestCombo = 0; P.recent = [];
   $('#finish').hidden = true; fxG.innerHTML = '';
   renderNotes(); updateControls(); updateHud();
 }
@@ -838,12 +1007,13 @@ function resizeStaff() {
   P.scale = s; P.W = r.width / s;
   svg.setAttribute('viewBox', `0 0 ${P.W.toFixed(1)} ${P.geo.H}`);
   svg.style.height = (P.geo.H * s) + 'px';
-  linesG.innerHTML = staffLines(0, P.W);
-  panelG.innerHTML = clefPanel(P.song.time, P.geo.H, true);
+  linesG.innerHTML = staffLines(0, P.W, P.geo.staves);
+  panelG.innerHTML = clefPanel(P.song.time, P.geo, true);
   cursorG.innerHTML = `<rect class="cursor-glow" x="-15" y="24" width="30" height="${P.geo.chipY - 2}" rx="15"/><rect class="cursor" x="-2.5" y="24" width="5" height="${P.geo.chipY - 2}" rx="2.5"/>`;
 }
 function renderNotes() {
-  notesG.innerHTML = notesMarkup(P.items, P.endX, P.geo, { cur: P.idx, hits: P.hits, misses: P.misses, wrong: P.wrong });
+  const cs = P.idx < P.notes.length ? P.notes[P.idx].start : Infinity;
+  notesG.innerHTML = notesMarkup(P.items, P.endX, P.geo, { curStart: cs, hits: P.hits, misses: P.misses, wrong: P.wrong });
   updateKeyTarget();
 }
 function restX() { const n = P.notes[P.idx]; return n ? n.x : P.endX - 14; }
@@ -901,26 +1071,27 @@ function tempoTick() {
   ci.hidden = true;
   if (!r.started) { r.started = true; updateKeyTarget(); }
   let i = P.idx;
-  while (i + 1 < P.notes.length && P.notes[i + 1].start <= b + 1e-6) i++;
+  for (;;) { const e = stepEnd(i); if (e < P.notes.length && P.notes[e].start <= b + 1e-6) i = e; else break; }
   let dirty = i !== P.idx;
   P.idx = i;
   if (P.mode === 'tempo' && r.scored) {
     const tj = now - MIC_LAT;
-    while (r.judge < P.notes.length) {
-      const n = P.notes[r.judge];
-      if (n.type === 'note' && !P.hits[r.judge]) {
-        if (tj <= noteWindow(n).to) break;
-        P.misses[r.judge] = true; P.combo = 0; fx(n.x, 'Glipp', 'miss'); dirty = true; updateHud();
-      }
-      r.judge++;
+    for (let j = r.judge; j < P.notes.length; j++) {
+      const n = P.notes[j];
+      if (n.type !== 'note' || P.hits[j] || P.misses[j]) continue;
+      const w = noteWindow(n);
+      if (w.from > tj) break;
+      if (tj > w.to) { P.misses[j] = true; P.combo = 0; fx(n.x, 'Glipp', 'miss'); dirty = true; updateHud(); }
     }
+    while (r.judge < P.notes.length) { const n = P.notes[r.judge]; if (n.type === 'note' && !P.hits[r.judge] && !P.misses[r.judge]) break; r.judge++; }
   }
   if (dirty) renderNotes();
   if (b >= P.total + 0.2 && (P.mode !== 'tempo' || !r.scored || r.judge >= P.notes.length)) {
     finishRun(); return P.endX - 14;
   }
-  const n = P.notes[i], nx = P.notes[i + 1] ? P.notes[i + 1].x : P.endX - 14;
-  return n.x + Math.min(1, (b - n.start) / n.beats) * (nx - n.x);
+  const n = P.notes[i], e = stepEnd(i), nx = e < P.notes.length ? P.notes[e].x : P.endX - 14;
+  const dur = (e < P.notes.length ? P.notes[e].start : P.total) - n.start;
+  return n.x + Math.min(1, (b - n.start) / Math.max(dur, 1e-3)) * (nx - n.x);
 }
 function finishRun() {
   const scored = P.run && P.run.scored;
@@ -939,59 +1110,71 @@ function finishRun() {
 
 /* ---------- vent på meg ---------- */
 function advanceWait() {
-  P.idx = firstPlayable(P.idx + 1);
+  P.idx = firstPlayable(stepEnd(P.idx));
   renderNotes();
   if (P.idx >= P.notes.length) {
     const pr = progress[P.song.id] || {}; pr.wait = true; progress[P.song.id] = pr; store.set('progress', progress);
     setTimeout(() => showFinish('wait'), 350);
   }
 }
-function onPlayed(midi, source) {
+function remember(pc) { const t = performance.now(); P.recent = (P.recent || []).filter(r => t - r.t < 3000); P.recent.push({ pc, t }); }
+function onPlayed(midi, source, o) {
+  o = o || {};
   if (screen !== 'practice' || !P.song) return;
+  const pc = mod(midi, 12), mic_ = source === 'mic';
+  // to hender: en tone som klinger videre fra forrige steg (uten nytt anslag) skal ikke telle eller gi feil
+  if (mic_ && P.two && !o.fresh && (P.recent || []).some(r => r.pc === pc && performance.now() - r.t < 2500)) return;
   if (P.mode === 'wait') {
-    const n = P.notes[P.idx];
-    if (!n || n.type !== 'note' || !$('#finish').hidden) return;
-    mic.lastJudge = midi % 12 === n.midi % 12 ? `Riktig: ${midiName(midi)}` : `Hørte ${midiName(midi)}, ventet ${noteName(n)}`;
-    if (midi === n.midi || (source === 'mic' && midi % 12 === n.midi % 12)) { P.hits[P.idx] = true; if (P.wrong) delete P.wrong[P.idx]; advanceWait(); }
-    else {
-      flashWrong(midi); ghost(midi);
-      P.wrong[P.idx] = midi; renderNotes();
-      if (source === 'key')
-      if (midi % 12 === n.midi % 12) toast('Riktig tone, men en annen oktav. Prøv tangenten som lyser.');
+    if (P.idx >= P.notes.length || !$('#finish').hidden) return;
+    const all = stepNotes(P.idx), open = all.filter(j => !P.hits[j]);
+    if (!open.length) return;
+    const j = open.find(j => mic_ ? mod(P.notes[j].midi, 12) === pc : P.notes[j].kmidi === midi);
+    if (j != null) {
+      P.hits[j] = true; delete P.wrong[j]; remember(pc);
+      mic.lastJudge = `Riktig: ${midiName(midi)}` + (open.length > 1 ? `, venter på ${open.filter(k => k !== j).map(k => noteName(P.notes[k])).join(' + ')}` : '') + (o.poly ? ' (funnet i samklang)' : '');
+      if (open.length === 1) advanceWait(); else renderNotes();
+      return;
     }
+    mic.lastJudge = `Hørte ${midiName(midi)}, ventet ${open.map(k => noteName(P.notes[k])).join(' + ')}`;
+    // når to toner spilles samtidig kan tonehøydemåleren høre en blanding: ikke vis feil da
+    if (mic_ && all.length > 1) return;
+    const n = P.notes[open[0]];
+    flashWrong(mic_ ? foldKey(midi) : midi); ghost(midi);
+    P.wrong[open[0]] = mic_ ? nearOct(midi, n.midi) : midi; renderNotes();
+    if (!mic_ && open.some(k => mod(P.notes[k].midi, 12) === pc)) toast('Riktig tone, men en annen oktav. Prøv tangenten som lyser.');
     return;
   }
   if (P.mode === 'tempo' && P.running && P.run) {
-    const r = P.run, t = ac.currentTime - (source === 'mic' ? MIC_LAT : 0.02);
+    const r = P.run, t = (o.at != null ? o.at : ac.currentTime) - (mic_ ? MIC_LAT : 0.02);
     if (t < r.t0 + r.sb * r.spb - 0.3) return;
     r.scored = true;
-    let best = -1, bestDt = Infinity, active = false, aim = -1, aimDt = Infinity;
+    let best = -1, bestDt = Infinity, active = 0, aim = -1, aimDt = Infinity;
     for (let j = r.judge; j < P.notes.length; j++) {
-      const n = P.notes[j]; if (n.type !== 'note' || P.hits[j]) continue;
+      const n = P.notes[j]; if (n.type !== 'note' || P.hits[j] || P.misses[j]) continue;
       const w = noteWindow(n);
       if (w.from > t) break;
       if (t > w.to) continue;
-      active = true;
+      active++;
       const dt = Math.abs(t - w.at);
       if (dt < aimDt) { aim = j; aimDt = dt; }
-      if (n.midi % 12 === midi % 12 && dt < bestDt) { best = j; bestDt = dt; }
+      if (mod(n.midi, 12) === pc && dt < bestDt) { best = j; bestDt = dt; }
     }
     if (best < 0) {
       let near = null, nd = Infinity;
-      for (let j = 0; j < P.notes.length; j++) { const n = P.notes[j]; if (n.type !== 'note' || n.midi % 12 !== midi % 12) continue; const d = t - noteWindow(n).at; if (Math.abs(d) < Math.abs(nd)) { nd = d; near = n; } }
+      for (let j = 0; j < P.notes.length; j++) { const n = P.notes[j]; if (n.type !== 'note' || mod(n.midi, 12) !== pc) continue; const d = t - noteWindow(n).at; if (Math.abs(d) < Math.abs(nd)) { nd = d; near = n; } }
       const cur = P.notes[P.idx];
       mic.lastJudge = active ? `Hørte ${midiName(midi)}, ventet ${cur && cur.type === 'note' ? noteName(cur) : 'pause'}` + (near ? ` (nærmeste ${midiName(midi)} var ${Math.abs(nd).toFixed(2)} s ${nd < 0 ? 'for tidlig' : 'for sent'})` : '')
         : `Hørte ${midiName(midi)} mellom notene` + (near ? ` (${Math.abs(nd).toFixed(2)} s ${nd < 0 ? 'for tidlig' : 'for sent'})` : '');
-    } else mic.lastJudge = `Treff ${midiName(midi)}, ${bestDt.toFixed(2)} s fra starten av noten`;
+    } else mic.lastJudge = `Treff ${midiName(midi)}, ${bestDt.toFixed(2)} s fra starten av noten` + (o.poly ? ' (funnet i samklang)' : '');
     if (best >= 0) {
       const perfect = bestDt < timing().perfect;
-      P.hits[best] = perfect ? 'p' : 'g'; delete P.misses[best]; delete P.wrong[best];
+      P.hits[best] = perfect ? 'p' : 'g'; delete P.misses[best]; delete P.wrong[best]; remember(pc);
       P.combo++; P.bestCombo = Math.max(P.bestCombo, P.combo);
       fx(P.notes[best].x, perfect ? 'Perfekt!' : 'Bra!', perfect ? 'perfect' : 'good');
       renderNotes(); updateHud(true);
-    } else if (active) {
-      P.combo = 0; updateHud(); flashWrong(midi); ghost(midi);
-      if (aim >= 0) { P.wrong[aim] = midi; renderNotes(); }
+    } else if (active && !(mic_ && active > 1 && P.two)) {
+      P.combo = 0; updateHud(); flashWrong(mic_ ? foldKey(midi) : midi); ghost(midi);
+      if (aim >= 0) { P.wrong[aim] = mic_ ? nearOct(midi, P.notes[aim].midi) : midi; renderNotes(); }
     }
   }
 }
@@ -1033,7 +1216,7 @@ function updateHud(bump) {
   if (bump) { c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump'); }
 }
 function showHeard(midi) {
-  const k = kb.querySelector(`[data-midi="${midi}"]`); if (!k) return;
+  const k = kb.querySelector(`[data-midi="${foldKey(midi)}"]`); if (!k) return;
   k.classList.add('heard'); clearTimeout(k._ht); k._ht = setTimeout(() => k.classList.remove('heard'), 300);
 }
 
@@ -1102,7 +1285,7 @@ async function play() {
 }
 $('#playBtn').addEventListener('click', play);
 $('#restartBtn').addEventListener('click', () => resetPosition());
-$('#hearBtn').addEventListener('click', () => { const n = P.notes[P.idx]; if (n && n.type === 'note') playTone(n.midi, 0, 0.8, 0.55); });
+$('#hearBtn').addEventListener('click', () => { if (P.idx < P.notes.length) for (const j of stepNotes(P.idx)) if (!P.hits[j]) playTone(P.notes[j].midi, 0, 0.8, 0.5); });
 $('#skipBtn').addEventListener('click', () => { if (P.idx < P.notes.length) advanceWait(); });
 $('#micBtn').addEventListener('click', micToggle);
 const speedEl = $('#speed');
@@ -1111,7 +1294,7 @@ speedEl.addEventListener('input', () => { prefs.speed = +speedEl.value; savePref
 document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
 notesG.addEventListener('click', e => {
   const t = e.target.closest('[data-i]'); if (!t || P.running) return;
-  const i = +t.dataset.i;
+  const i = stepStart(+t.dataset.i);
   P.idx = P.mode === 'wait' ? firstPlayable(i) : i;
   $('#finish').hidden = true;
   renderNotes();
@@ -1124,10 +1307,11 @@ function buildKeyboard() {
   const whites = [];
   for (let m = P.lo; m <= P.hi; m++) if (isWhite(m)) whites.push(m);
   const wp = 100 / whites.length;
+  kb.classList.toggle('many', whites.length > 24);
   for (const m of whites) {
     const d = document.createElement('div');
     d.className = 'key white'; d.dataset.midi = m;
-    d.innerHTML = (m === 60 ? '<span class="midc" title="Midtre C"></span>' : '') + '<span class="kl"></span>';
+    d.innerHTML = (m === 60 + (P.kshift || 0) ? '<span class="midc" title="Midtre C"></span>' : '') + '<span class="kl"></span>';
     kb.appendChild(d);
   }
   for (let m = P.lo; m <= P.hi; m++) if (!isWhite(m)) {
@@ -1146,22 +1330,25 @@ function labelKeys() {
     k.querySelector('.kl').textContent = isWhite(m) && prefs.keyNames ? midiName(m) : '';
   });
 }
-let targetKey = null;
+let targetKeys = [];
 function updateKeyTarget() {
-  if (targetKey) {
-    targetKey.classList.remove('target'); targetKey.style.removeProperty('--kc'); targetKey.style.removeProperty('--kfg');
-    const m = +targetKey.dataset.midi;
-    targetKey.querySelector('.kl').textContent = isWhite(m) && prefs.keyNames ? midiName(m) : '';
-    targetKey = null;
+  for (const k of targetKeys) {
+    k.classList.remove('target'); k.style.removeProperty('--kc'); k.style.removeProperty('--kfg');
+    const m = +k.dataset.midi;
+    k.querySelector('.kl').textContent = isWhite(m) && prefs.keyNames ? midiName(m) : '';
   }
-  const n = P.notes[P.idx];
-  if (!n || n.type !== 'note' || (P.running && P.run && ac && (ac.currentTime - P.run.t0) / P.run.spb < P.run.sb - 1e-6 && P.mode === 'tempo')) return;
-  const k = kb.querySelector(`[data-midi="${n.midi}"]`); if (!k) return;
-  k.classList.add('target');
-  k.style.setProperty('--kc', prefs.colors ? NC[n.li] : 'var(--accent)');
-  k.style.setProperty('--kfg', prefs.colors ? noteFg(n.li) : 'var(--accent-fg)');
-  k.querySelector('.kl').textContent = noteName(n);
-  targetKey = k;
+  targetKeys = [];
+  if (P.idx >= P.notes.length) return;
+  if (P.running && P.run && ac && (ac.currentTime - P.run.t0) / P.run.spb < P.run.sb - 1e-6 && P.mode === 'tempo') return;
+  for (const j of stepNotes(P.idx)) {
+    if (P.mode === 'wait' && P.hits[j]) continue;
+    const n = P.notes[j], k = kb.querySelector(`[data-midi="${n.kmidi}"]`); if (!k || targetKeys.includes(k)) continue;
+    k.classList.add('target');
+    k.style.setProperty('--kc', prefs.colors ? NC[n.li] : 'var(--accent)');
+    k.style.setProperty('--kfg', prefs.colors ? noteFg(n.li) : 'var(--accent-fg)');
+    k.querySelector('.kl').textContent = noteName(n);
+    targetKeys.push(k);
+  }
 }
 function flashWrong(midi) {
   const k = kb.querySelector(`[data-midi="${midi}"]`); if (!k) return;
@@ -1224,7 +1411,11 @@ function goHome() { stopRun(); showScreen('home'); renderHome(); releaseWakeLock
 $('#backBtn').addEventListener('click', goHome);
 
 /* ================= INNSTILLINGER ================= */
+const kbSel = $('#kbSize');
+kbSel.innerHTML = '<option value="auto">Tilpass hver sang</option>' + KB_SIZES.map(k => `<option value="${k.id}">${k.n} tangenter, ${k.note}</option>`).join('');
+kbSel.addEventListener('change', () => { prefs.kb = kbSel.value; savePrefs(); prefsChanged(); });
 function syncSettings() {
+  kbSel.value = KB_SIZES.some(k => k.id === prefs.kb) ? prefs.kb : 'auto';
   document.querySelectorAll('[data-pref]').forEach(b => b.setAttribute('aria-checked', String(!!prefs[b.dataset.pref])));
   document.querySelectorAll('[data-naming]').forEach(b => b.setAttribute('aria-pressed', String(prefs.naming === b.dataset.naming)));
   document.querySelectorAll('[data-timing]').forEach(b => b.setAttribute('aria-pressed', String(prefs.timing === b.dataset.timing)));
@@ -1247,7 +1438,7 @@ $('#settings').addEventListener('click', e => {
   savePrefs(); syncSettings(); prefsChanged();
 });
 function prefsChanged() {
-  if (screen === 'practice') { renderNotes(); labelKeys(); updateKeyTarget(); }
+  if (screen === 'practice' && P.song) { mapToKeyboard(); buildKeyboard(); renderNotes(); }
   renderHome();
 }
 
@@ -1283,7 +1474,7 @@ function updatePreview() {
   const w = Math.max(endX, 400);
   edPrev.setAttribute('width', w * 0.8); edPrev.setAttribute('height', geo.H * 0.8);
   edPrev.setAttribute('viewBox', `0 0 ${w} ${geo.H}`);
-  edPrev.innerHTML = `<g id="edStaff">${staffLines(0, w)}${notes.length ? notesMarkup(p.items, endX, geo, { cur:-1 }) : ''}${clefPanel($('#edTime').value, geo.H, false)}</g>`;
+  edPrev.innerHTML = `<g id="edStaff">${staffLines(0, w)}${notes.length ? notesMarkup(p.items, endX, geo, {}) : ''}${clefPanel($('#edTime').value, geo, false)}</g>`;
 }
 ['input', 'change'].forEach(t => { $('#edNotes').addEventListener(t, updatePreview); $('#edTime').addEventListener(t, updatePreview); });
 $('#edCancel').addEventListener('click', closeEditor);
