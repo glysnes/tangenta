@@ -626,6 +626,24 @@ async function micStart() {
     return false;
   }
 }
+// iOS kan stoppe mikrofonstrømmen underveis (strømmen ender, blir dempet, eller lydmotoren avbrytes).
+// Da hentes en ny strøm og kobles til den samme analysen, uten å bytte lydmodus.
+async function micRestart(reason) {
+  if (!mic.on || mic.restarting) return;
+  const nowMs = performance.now();
+  if (mic.lastRestart && nowMs - mic.lastRestart < 4000) return;
+  mic.restarting = true; mic.lastRestart = nowMs; mic.restarts = (mic.restarts || 0) + 1; mic.lastRestartReason = reason;
+  try {
+    if (ac && ac.state !== 'running') { try { await ac.resume(); } catch (e) {} }
+    if (mic.stream) mic.stream.getTracks().forEach(t => t.stop());
+    try { if (mic.src) mic.src.disconnect(); } catch (e) {}
+    mic.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation:false, noiseSuppression:false, autoGainControl:false } });
+    mic.src = ac.createMediaStreamSource(mic.stream);
+    mic.src.connect(mic.an);
+    mic.stale = 0; mic.zero = 0; mic.stable = 0; mic.lastMidi = -1; mic.accepted = -1;
+  } catch (e) {}
+  mic.restarting = false;
+}
 function micStop() {
   if (mic.stream) mic.stream.getTracks().forEach(t => t.stop());
   try { if (mic.src) mic.src.disconnect(); if (mic.sink) mic.sink.disconnect(); } catch (e) {}
@@ -666,6 +684,15 @@ function detectPitch(raw, sr) {
   const shift = (a - 2 * b + c) ? 0.5 * (a - c) / (a - 2 * b + c) : 0;
   return { freq: sr / (pick + shift), clarity: b };
 }
+function showLive() {
+  const m = mic.live == null ? -1 : mic.live;
+  if (m === mic.liveShown) return;
+  mic.liveShown = m;
+  for (const h of [$('#heard'), $('#hudHeard')]) {
+    h.textContent = m < 0 ? '–' : midiName(m);
+    h.style.color = m >= 0 && prefs.colors ? NC[midiLi(m)] : '';
+  }
+}
 function updateDiag() {
   if ($('#settings').hidden || !$('#diag')) return;
   const tr = mic.stream && mic.stream.getAudioTracks()[0];
@@ -673,18 +700,29 @@ function updateDiag() {
   $('#diag').innerHTML = [
     ['Mikrofon', mic.on ? (tr ? `${tr.readyState}${tr.muted ? ', dempet' : ''}${set.sampleRate ? ', ' + set.sampleRate + ' Hz' : ''}` : 'på') : 'av'],
     ['Lydmotor', ac ? `${ac.state}, ${ac.sampleRate} Hz` : 'ikke startet'],
+    ['Lyden står fast', mic.on ? `${mic.stale || 0} bilder` : '–'],
     ['Lydnivå', mic.on ? (mic.rmsNow || 0).toFixed(4) : '–'],
     ['Analyse', mic.on ? (mic.diag || '–') : '–'],
     ['Godtatte toner', mic.on ? `${mic.count || 0}${mic.lastName ? ', siste ' + mic.lastName : ''}` : '–'],
+    ['Omstarter', mic.restarts ? `${mic.restarts} (${mic.lastRestartReason})` : '0'],
     ['Siste vurdering', mic.lastJudge || '–']
   ].map(([k, v]) => `<dt>${k}</dt><dd>${esc(String(v))}</dd>`).join('');
 }
 function micTick() {
-  if (!mic.on || !mic.an) return;
+  if (!mic.on || !mic.an || mic.restarting) return;
+  if (ac.state !== 'running') { mic.health = 'lydmotor ' + ac.state; ac.resume().catch(() => {}); }
+  const tr = mic.stream && mic.stream.getAudioTracks()[0];
+  if (tr && tr.readyState === 'ended') { micRestart('strømmen stoppet'); return; }
   mic.an.getFloatTimeDomainData(mic.buf);
   let sum = 0; for (let i = 0; i < mic.buf.length; i++) sum += mic.buf[i] * mic.buf[i];
   const rms = Math.sqrt(sum / mic.buf.length);
   mic.rmsNow = rms;
+  // samme data om igjen, eller helt stille (ekte mikrofoner er aldri helt stille) = strømmen står fast
+  const sig = mic.buf[3] + mic.buf[517] * 3 + mic.buf[1301] * 7 + mic.buf[2040] * 11;
+  mic.stale = sig === mic.lastSig ? (mic.stale || 0) + 1 : 0; mic.lastSig = sig;
+  mic.zero = rms === 0 ? (mic.zero || 0) + 1 : 0;
+  if (mic.stale > 15 || mic.zero > 45) { micRestart(mic.stale > 15 ? 'lyden sto fast' : 'ingen lyd'); return; }
+  if ((mic.frame = (mic.frame || 0) + 1) % 4 === 0) showLive(null);
   const recentMin = mic.rms.length ? Math.min(...mic.rms) : 0;
   const lvl = Math.max(0, Math.min(1, (20 * Math.log10(rms + 1e-9) + 62) / 50));
   mic.level = Math.max(lvl, (mic.level || 0) * 0.9);
@@ -692,11 +730,12 @@ function micTick() {
   if (!$('#settings').hidden) { const tb = $('#testLvl'); if (tb) tb.style.width = (mic.level * 100).toFixed(0) + '%'; }
   if (rms > 0.004 && rms > recentMin * 1.4 + 0.001) mic.onset = true;
   mic.rms.push(rms); if (mic.rms.length > 4) mic.rms.shift();
-  if (rms < 0.0025) { mic.stable = 0; mic.lastMidi = -1; mic.diag = 'for svak lyd'; return; }
+  if (rms < 0.0025) { mic.stable = 0; mic.lastMidi = -1; mic.diag = 'for svak lyd'; mic.live = null; return; }
   const p = detectPitch(mic.buf, ac.sampleRate);
   mic.diag = p ? `${p.freq.toFixed(0)} Hz, klarhet ${p.clarity.toFixed(2)}` : 'ingen tone funnet';
-  if (!p || p.clarity < 0.6 || p.freq < 60 || p.freq > 1500) { mic.stable = 0; return; }
+  if (!p || p.clarity < 0.6 || p.freq < 60 || p.freq > 1500) { mic.stable = 0; mic.live = null; return; }
   const midi = Math.round(69 + 12 * Math.log2(p.freq / 440));
+  mic.live = midi;
   if (!$('#settings').hidden) { $('#testNote').textContent = midiName(midi); }
   mic.stable = mic.lastMidi >= 0 && midi % 12 === mic.lastMidi % 12 ? mic.stable + 1 : 1;
   mic.lastMidi = midi;
@@ -704,7 +743,7 @@ function micTick() {
     if (midi % 12 !== mic.accepted % 12 || mic.onset) {
       mic.accepted = midi; mic.onset = false;
       const li = midiLi(midi);
-      for (const h of [$('#heard'), $('#hudHeard')]) { h.textContent = midiName(midi); h.style.color = prefs.colors ? NC[li] : ''; }
+      mic.liveShown = -2;
       showHeard(midi);
       mic.count = (mic.count || 0) + 1; mic.lastName = midiName(midi) + (Math.floor(midi / 12) - 1);
       onPlayed(midi, 'mic');
