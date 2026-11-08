@@ -222,6 +222,13 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,textarea:
 .version-tag{position:fixed;z-index:5;left:max(10px,env(safe-area-inset-left,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));font-size:12px;font-weight:700;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px 10px;pointer-events:none;font-variant-numeric:tabular-nums}
 .update-bar{position:fixed;z-index:35;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:var(--accent);color:var(--accent-fg);font-weight:800;padding:8px 8px 8px 18px;border-radius:16px;box-shadow:0 10px 30px -10px rgba(0,0,0,.5);max-width:calc(100% - 32px)}
 .update-bar .btn{min-height:40px;background:var(--surface);color:var(--fg);border-color:transparent}
+.mictest{display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--line);padding-bottom:14px}
+.test-row{display:flex;align-items:center;gap:14px}
+.test-note{font-family:var(--font-display);font-weight:800;font-size:44px;line-height:1;min-width:64px;text-align:center}
+.lvl-bar.big{flex:1;height:14px;border-radius:7px}
+.diag{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:13px}
+.diag dt{color:var(--muted);font-weight:700}
+.diag dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums;min-width:0;overflow-wrap:anywhere}
 .toast{position:fixed;z-index:40;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);font-weight:700;padding:12px 18px;border-radius:14px;max-width:min(560px,calc(100% - 32px));text-align:center;box-shadow:0 10px 30px -10px rgba(0,0,0,.5)}
 
 @media (max-width:760px){
@@ -302,6 +309,11 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,textarea:
     <div class="setting"><div><b>Metronom</b><small>Tikker i takt når du spiller i takt. Innteller kommer alltid.</small></div><button class="switch" type="button" role="switch" data-pref="metro" aria-label="Metronom"></button></div>
     <div class="setting"><div><b>Melodien spiller med</b><small>Appen spiller melodien svakt mens du spiller i takt.</small></div><button class="switch" type="button" role="switch" data-pref="guide" aria-label="Melodien spiller med"></button></div>
     <p class="home-note">Tips: I «Spill i takt» lytter iPaden på keyboardet ditt gjennom mikrofonen og gir poeng for hver tone du treffer. Legg iPaden nær høyttaleren på keyboardet.</p>
+    <div class="mictest">
+      <div class="setting" style="border:0;padding-bottom:0"><div><b>Mikrofontest</b><small>Spill en tone på keyboardet. Navnet skal komme opp her.</small></div><button class="btn" id="testMic" type="button">Start</button></div>
+      <div class="test-row"><span class="test-note" id="testNote">–</span><i class="lvl-bar big"><b id="testLvl"></b></i></div>
+      <dl class="diag" id="diag"></dl>
+    </div>
     <p class="home-note" id="versionLine">Versjon i Claude</p>
   </div>
 </div>
@@ -608,7 +620,12 @@ function updateMicUi() {
   $('#micLbl').textContent = mic.on ? 'Mikrofon på' : 'Mikrofon av';
   $('#micStatus').hidden = !mic.on || P.mode === 'listen';
 }
-function detectPitch(buf, sr) {
+function detectPitch(raw, sr) {
+  // fjern likespenning og lav brumming (enkelt høypassfilter rundt 60 Hz), ellers finnes ingen tone
+  const buf = detectPitch.work && detectPitch.work.length === raw.length ? detectPitch.work : (detectPitch.work = new Float32Array(raw.length));
+  let mean = 0; for (let i = 0; i < raw.length; i++) mean += raw[i]; mean /= raw.length;
+  const hp = Math.exp(-2 * Math.PI * 60 / sr); let py = 0, px = raw[0] - mean;
+  for (let i = 0; i < raw.length; i++) { const x = raw[i] - mean; py = hp * (py + x - px); px = x; buf[i] = py; }
   const minLag = Math.floor(sr / 1400), maxLag = Math.min(Math.ceil(sr / 90), buf.length >> 1);
   const W = buf.length - maxLag, nsdf = new Float32Array(maxLag + 2);
   for (let tau = minLag; tau <= maxLag; tau++) {
@@ -631,23 +648,39 @@ function detectPitch(buf, sr) {
   const shift = (a - 2 * b + c) ? 0.5 * (a - c) / (a - 2 * b + c) : 0;
   return { freq: sr / (pick + shift), clarity: b };
 }
+function updateDiag() {
+  if ($('#settings').hidden || !$('#diag')) return;
+  const tr = mic.stream && mic.stream.getAudioTracks()[0];
+  const set = tr && tr.getSettings ? tr.getSettings() : {};
+  $('#diag').innerHTML = [
+    ['Mikrofon', mic.on ? (tr ? `${tr.readyState}${tr.muted ? ', dempet' : ''}${set.sampleRate ? ', ' + set.sampleRate + ' Hz' : ''}` : 'på') : 'av'],
+    ['Lydmotor', ac ? `${ac.state}, ${ac.sampleRate} Hz` : 'ikke startet'],
+    ['Lydnivå', mic.on ? (mic.rmsNow || 0).toFixed(4) : '–'],
+    ['Analyse', mic.on ? (mic.diag || '–') : '–'],
+    ['Godtatte toner', mic.on ? `${mic.count || 0}${mic.lastName ? ', siste ' + mic.lastName : ''}` : '–'],
+    ['Siste vurdering', mic.lastJudge || '–']
+  ].map(([k, v]) => `<dt>${k}</dt><dd>${esc(String(v))}</dd>`).join('');
+}
 function micTick() {
   if (!mic.on || !mic.an) return;
   mic.an.getFloatTimeDomainData(mic.buf);
   let sum = 0; for (let i = 0; i < mic.buf.length; i++) sum += mic.buf[i] * mic.buf[i];
   const rms = Math.sqrt(sum / mic.buf.length);
+  mic.rmsNow = rms;
   const recentMin = mic.rms.length ? Math.min(...mic.rms) : 0;
   const lvl = Math.max(0, Math.min(1, (20 * Math.log10(rms + 1e-9) + 62) / 50));
   mic.level = Math.max(lvl, (mic.level || 0) * 0.9);
   const lb = $('#lvlBar'); if (lb) lb.style.width = (mic.level * 100).toFixed(0) + '%';
+  if (!$('#settings').hidden) { const tb = $('#testLvl'); if (tb) tb.style.width = (mic.level * 100).toFixed(0) + '%'; }
   if (rms > 0.004 && rms > recentMin * 1.4 + 0.001) mic.onset = true;
   mic.rms.push(rms); if (mic.rms.length > 4) mic.rms.shift();
-  if (rms < 0.0025) { mic.stable = 0; mic.lastMidi = -1; return; }
+  if (rms < 0.0025) { mic.stable = 0; mic.lastMidi = -1; mic.diag = 'for svak lyd'; return; }
   const p = detectPitch(mic.buf, ac.sampleRate);
-  if (!p || p.clarity < 0.82 || p.freq < 80 || p.freq > 1500) { mic.stable = 0; return; }
+  mic.diag = p ? `${p.freq.toFixed(0)} Hz, klarhet ${p.clarity.toFixed(2)}` : 'ingen tone funnet';
+  if (!p || p.clarity < 0.6 || p.freq < 60 || p.freq > 1500) { mic.stable = 0; return; }
   const midi = Math.round(69 + 12 * Math.log2(p.freq / 440));
-  if (midi < P.lo - 1 || midi > P.hi + 1) { mic.stable = 0; return; }
-  mic.stable = midi === mic.lastMidi ? mic.stable + 1 : 1;
+  if (!$('#settings').hidden) { $('#testNote').textContent = midiName(midi); }
+  mic.stable = mic.lastMidi >= 0 && midi % 12 === mic.lastMidi % 12 ? mic.stable + 1 : 1;
   mic.lastMidi = midi;
   if (mic.stable === 2 || (mic.stable > 2 && mic.onset)) {
     if (midi % 12 !== mic.accepted % 12 || mic.onset) {
@@ -655,6 +688,7 @@ function micTick() {
       const li = midiLi(midi);
       for (const h of [$('#heard'), $('#hudHeard')]) { h.textContent = midiName(midi); h.style.color = prefs.colors ? NC[li] : ''; }
       showHeard(midi);
+      mic.count = (mic.count || 0) + 1; mic.lastName = midiName(midi) + (Math.floor(midi / 12) - 1);
       onPlayed(midi, 'mic');
     }
   }
@@ -825,6 +859,7 @@ function onPlayed(midi, source) {
   if (P.mode === 'wait') {
     const n = P.notes[P.idx];
     if (!n || n.type !== 'note' || !$('#finish').hidden) return;
+    mic.lastJudge = midi % 12 === n.midi % 12 ? `Riktig: ${midiName(midi)}` : `Hørte ${midiName(midi)}, ventet ${noteName(n)}`;
     if (midi === n.midi || (source === 'mic' && midi % 12 === n.midi % 12)) { P.hits[P.idx] = true; advanceWait(); }
     else {
       flashWrong(midi); ghost(midi);
@@ -847,6 +882,13 @@ function onPlayed(midi, source) {
       const dt = Math.abs(t - w.at);
       if (n.midi % 12 === midi % 12 && dt < bestDt) { best = j; bestDt = dt; }
     }
+    if (best < 0) {
+      let near = null, nd = Infinity;
+      for (let j = 0; j < P.notes.length; j++) { const n = P.notes[j]; if (n.type !== 'note' || n.midi % 12 !== midi % 12) continue; const d = t - noteWindow(n).at; if (Math.abs(d) < Math.abs(nd)) { nd = d; near = n; } }
+      const cur = P.notes[P.idx];
+      mic.lastJudge = active ? `Hørte ${midiName(midi)}, ventet ${cur && cur.type === 'note' ? noteName(cur) : 'pause'}` + (near ? ` (nærmeste ${midiName(midi)} var ${Math.abs(nd).toFixed(2)} s ${nd < 0 ? 'for tidlig' : 'for sent'})` : '')
+        : `Hørte ${midiName(midi)} mellom notene` + (near ? ` (${Math.abs(nd).toFixed(2)} s ${nd < 0 ? 'for tidlig' : 'for sent'})` : '');
+    } else mic.lastJudge = `Treff ${midiName(midi)}, ${bestDt.toFixed(2)} s fra midten`;
     if (best >= 0) {
       const perfect = bestDt < 0.13;
       P.hits[best] = perfect ? 'p' : 'g'; delete P.misses[best];
@@ -1094,7 +1136,11 @@ function syncSettings() {
   document.querySelectorAll('[data-pref]').forEach(b => b.setAttribute('aria-checked', String(!!prefs[b.dataset.pref])));
   document.querySelectorAll('[data-naming]').forEach(b => b.setAttribute('aria-pressed', String(prefs.naming === b.dataset.naming)));
 }
-function openSettings() { syncSettings(); $('#settings').hidden = false; }
+function openSettings() { syncSettings(); $('#settings').hidden = false; $('#testMic').textContent = mic.on ? 'Stopp' : 'Start'; updateDiag(); }
+$('#testMic').addEventListener('click', async () => {
+  if (mic.on) micStop(); else { audio(); await micStart(); }
+  $('#testMic').textContent = mic.on ? 'Stopp' : 'Start'; updateDiag();
+});
 $('#openSettings1').addEventListener('click', openSettings);
 $('#openSettings2').addEventListener('click', openSettings);
 $('#closeSettings').addEventListener('click', () => { $('#settings').hidden = true; });
@@ -1198,10 +1244,12 @@ document.addEventListener('keydown', e => {
 });
 document.addEventListener('pointerdown', () => { if (ac && ac.state === 'suspended') ac.resume(); }, { passive: true });
 
+let frameNo = 0;
 function frame() {
   requestAnimationFrame(frame);
+  if (mic.on && (screen !== 'practice' || !P.song)) { micTick(); if ((frameNo++ % 10) === 0) updateDiag(); return; }
   if (screen !== 'practice' || !P.song) return;
-  if (mic.on) micTick();
+  if (mic.on) { micTick(); if ((frameNo++ % 10) === 0) updateDiag(); }
   let tx;
   if (P.running && P.run) { tx = tempoTick(); P.curX = tx; }
   else { tx = restX(); P.curX += (tx - P.curX) * 0.22; }

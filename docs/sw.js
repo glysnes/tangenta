@@ -1,6 +1,6 @@
 // Tangenta offline: selve siden hentes fra nettet først (lageret er reserve uten nett),
 // resten vises fra lageret med en gang og fornyes i bakgrunnen. version.json går alltid til nettet.
-const CACHE = 'tangenta-e1f0cac';
+const CACHE = 'tangenta-dd40ab3';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
